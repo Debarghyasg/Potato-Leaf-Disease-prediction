@@ -5,20 +5,20 @@ const session        = require('express-session');
 const { Client }     = require('pg');
 const multer         = require('multer');
 const axios          = require('axios');
-const FormData = require('form-data'); // Required for sending images to Python
-const nodemailer = require('nodemailer'); // Required for emails
-const cron = require('node-cron'); // Required for daily reminders
-
-
+const FormData       = require('form-data');
+const nodemailer     = require('nodemailer');
+const cron           = require('node-cron');
 const fs             = require('fs');
 const passport       = require('passport');
 const LocalStrategy  = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 require('dotenv').config();
 
-const app        = express();
-const port       = 3000;
+const app         = express();
+const port        = 3000;
 const SALT_ROUNDS = 10;
+const FLASK_URL   = process.env.FLASK_URL || 'http://localhost:5000';
+const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
 
 
 // ── Database ──────────────────────────────────────────────────────────────────
@@ -35,6 +35,70 @@ client.connect()
     .catch(err => { console.error('❌ DB connection failed:', err.message); process.exit(1); });
 
 
+// ── Nodemailer ────────────────────────────────────────────────────────────────
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+const sendWelcomeEmail = async (userEmail, userName) => {
+    try {
+        const mailOptions = {
+            from:    `"PotatoScan Support" <${process.env.EMAIL_USER}>`,
+            to:      userEmail,
+            subject: 'Welcome to PotatoScan! 🌿',
+            html: `
+                <div style="font-family:sans-serif;max-width:600px;border:1px solid #eee;padding:20px;border-radius:10px;">
+                    <h2 style="color:#4a8c3f;">Welcome to the family, ${userName}!</h2>
+                    <p>Thanks for joining <b>PotatoScan</b>. We're excited to help you keep your crops healthy using AI.</p>
+                    <p>You can now upload leaf images and get instant diagnoses for Early Blight, Late Blight, or confirm your plants are Healthy.</p>
+                    <br>
+                    <a href="https://github.com/Debarghyasg/Potato-Leaf-Disease-prediction"
+                       style="background:#4a8c3f;color:white;padding:12px 25px;text-decoration:none;border-radius:5px;display:inline-block;">
+                       Start Your First Scan
+                    </a>
+                    <p style="margin-top:30px;font-size:12px;color:#888;border-top:1px solid #eee;padding-top:10px;">
+                        Powered by Deep Learning
+                    </p>
+                </div>
+            `,
+        };
+        await transporter.sendMail(mailOptions);
+        console.log('📧 Welcome email sent to:', userEmail);
+    } catch (error) {
+        console.error('❌ Email failed:', error.message);
+    }
+};
+
+
+// ── Multer ────────────────────────────────────────────────────────────────────
+if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+    filename:    (req, file, cb) => {
+        const uniqueName = Date.now() + '_' + file.originalname.replace(/\s+/g, '_');
+        cb(null, uniqueName);
+    },
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        allowed.includes(file.mimetype)
+            ? cb(null, true)
+            : cb(new Error('Only JPG, PNG, and WEBP allowed.'));
+    },
+});
+
+
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,7 +112,7 @@ app.use(session({
     cookie: {
         maxAge:   30 * 60 * 1000,
         httpOnly: true,
-        secure:   false, // set true if using HTTPS
+        secure:   false,
     },
 }));
 
@@ -59,7 +123,6 @@ app.use(passport.session());
 // ── View Engine ───────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
 
 
 // ── Auth Middleware ───────────────────────────────────────────────────────────
@@ -98,6 +161,8 @@ passport.use(new LocalStrategy(
 
 
 // ── Passport: Google OAuth Strategy ──────────────────────────────────────────
+// ★ isNewGoogleUser is attached to the user object so the callback
+//   route knows whether to send a welcome email (new signup only).
 passport.use(new GoogleStrategy(
     {
         clientID:     process.env.GOOGLE_CLIENT_ID,
@@ -114,17 +179,24 @@ passport.use(new GoogleStrategy(
                 'SELECT * FROM users WHERE email = $1', [email]
             );
 
-            if (existing.rows.length > 0)
-                return done(null, existing.rows[0]);
+            if (existing.rows.length > 0) {
+                // Returning user — no welcome email
+                const user = existing.rows[0];
+                user.isNewGoogleUser = false;
+                return done(null, user);
+            }
 
-            // New Google user — insert with placeholder password
+            // Brand new Google user — insert and flag for welcome email
             const newUser = await client.query(
                 `INSERT INTO users (firstname, lastname, email, password, phone, location, terms_accepted)
                  VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
                 [firstname, lastname, email, 'GOOGLE_OAUTH', '', '', true]
             );
 
-            return done(null, newUser.rows[0]);
+            const user = newUser.rows[0];
+            user.isNewGoogleUser = true;
+            return done(null, user);
+
         } catch (err) {
             return done(err);
         }
@@ -150,10 +222,20 @@ app.get('/', (req, res) => {
     if (req.session.user) return res.redirect('/home');
     res.render('Login.ejs');
 });
-app.get('/home', isAuth, (req, res) => {
-    res.render('index.ejs');
-});
 
+// GET /home — pass full user object to EJS
+app.get('/home', isAuth, async (req, res) => {
+    try {
+        const result = await client.query(
+            'SELECT * FROM users WHERE id = $1', [req.session.user.id]
+        );
+        const user = result.rows[0];
+        res.render('index.ejs', { user });
+    } catch (err) {
+        console.error('Home route error:', err.message);
+        res.redirect('/');
+    }
+});
 
 // GET /signup
 app.get('/signup', (req, res) => {
@@ -162,46 +244,39 @@ app.get('/signup', (req, res) => {
 });
 
 // POST /signup
-
 app.post('/signup', async (req, res) => {
-    // 1. Extract variables from req.body
     const { firstname, lastname, email, password, phone, location, terms_accepted } = req.body;
 
-    // 2. Validation
-    if (!firstname || !lastname || !email || !password || !phone || !location) {
+    if (!firstname || !lastname || !email || !password || !phone || !location)
         return res.status(400).send('All fields are required.');
-    }
 
-    if (password.length < 8) {
+    if (password.length < 8)
         return res.status(400).send('Password must be at least 8 characters.');
-    }
 
     try {
-        // 3. Check if user already exists
         const existing = await client.query(
             'SELECT id FROM users WHERE email = $1', [email]
         );
-        if (existing.rows.length > 0) {
+        if (existing.rows.length > 0)
             return res.status(409).send('An account with this email already exists.');
-        }
 
-        // 4. Hash the password
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-        // 5. Insert into Database
         await client.query(
             `INSERT INTO users (firstname, lastname, email, password, phone, location, terms_accepted)
              VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [firstname, lastname, email, hashedPassword, phone, location, terms_accepted ? true : false]
         );
 
-        // 6. Save session and Redirect to Login (/)
-        req.session.save((err) => {
+        // Send welcome email (non-blocking)
+        sendWelcomeEmail(email, firstname);
+
+        req.session.save(err => {
             if (err) {
                 console.error('Session save error:', err);
                 return res.status(500).send('Error saving session.');
             }
-            res.redirect('/'); 
+            res.redirect('/');
         });
 
     } catch (err) {
@@ -209,7 +284,6 @@ app.post('/signup', async (req, res) => {
         res.status(500).send('Server error.');
     }
 });
-
 
 // POST / — Login
 app.post('/', async (req, res) => {
@@ -247,21 +321,27 @@ app.post('/', async (req, res) => {
     }
 });
 
-
-// GET /auth/google — Redirect to Google
+// GET /auth/google
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-// GET /auth/google/callback — Google calls back here
+// GET /auth/google/callback
+// ★ Sends welcome email only for brand new Google signups
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
-        req.session.user = { id: req.user.id, name: req.user.firstname };
+        const user = req.user;
+        req.session.user = { id: user.id, name: user.firstname };
+
+        if (user.isNewGoogleUser) {
+            sendWelcomeEmail(user.email, user.firstname);
+            console.log('🆕 New Google user — welcome email queued for:', user.email);
+        }
+
         res.redirect('/home');
     }
 );
-
 
 // GET /logout
 app.get('/logout', (req, res) => {
@@ -271,8 +351,64 @@ app.get('/logout', (req, res) => {
     });
 });
 
+// GET /result
+app.get('/result', (req, res) => {
+    res.render('result.ejs', { result: null, error: null, imageUrl: null });
+});
+
+// POST /analyze — receive image, forward to Flask, render result
+app.post('/analyze', isAuth, upload.single('leafImage'), async (req, res) => {
+    if (!req.file) {
+        return res.render('result.ejs', {
+            result: null,
+            error: 'No image received.',
+            imageUrl: null,
+        });
+    }
+
+    const savedFilePath = req.file.path;
+    const imageUrl      = '/uploads/' + req.file.filename;
+
+    try {
+        const form = new FormData();
+        form.append('file', fs.createReadStream(savedFilePath), {
+            filename:    req.file.originalname,
+            contentType: req.file.mimetype,
+        });
+
+        const response = await axios.post(`${FLASK_URL}/predict`, form, {
+            headers: form.getHeaders(),
+            timeout: 30000,
+        });
+
+        res.render('result.ejs', {
+            result:   response.data,
+            error:    null,
+            imageUrl,
+        });
+
+    } catch (err) {
+        const errorMsg = err.code === 'ECONNREFUSED'
+            ? 'ML server (Flask) is offline. Please try again later.'
+            : `Analysis error: ${err.message}`;
+
+        res.render('result.ejs', { result: null, error: errorMsg, imageUrl });
+    }
+});
+
+
+// ── Error Handler ─────────────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError || err.message?.includes('Only')) {
+        return res.render('result.ejs', { result: null, error: err.message, imageUrl: null });
+    }
+    console.error('Unhandled error:', err.message);
+    next(err);
+});
+
 
 // ── Start Server ──────────────────────────────────────────────────────────────
 app.listen(port, () => {
-    console.log(`🚀 Server is running on http://localhost:${port}`);
+    console.log(`🚀 Server running on http://localhost:${port}`);
+    console.log(`🧠 Flask backend: ${FLASK_URL}`);
 });

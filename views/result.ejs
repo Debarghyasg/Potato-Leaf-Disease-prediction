@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Result — PotatoScan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080e07; --card: #141c12; --border: #1f2e1c;
+      --green: #6deb50; --green-dim: #2a5e20;
+      --amber: #f0a500; --red: #e85c5c;
+      --text: #ddecd8; --muted: #6b8a65;
+      --font-d: 'Syne', sans-serif; --font-b: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text); font-family: var(--font-b);
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 0 20px 80px; overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse, rgba(60,120,40,0.15) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    nav {
+      width: 100%; max-width: 960px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 28px 0 32px; position: relative; z-index: 1;
+    }
+    .logo { font-family: var(--font-d); font-size: 20px; font-weight: 800; color: var(--green); }
+    .logo span { color: var(--text); }
+
+    .page { width: 100%; max-width: 860px; position: relative; z-index: 1; }
+
+    /* ── Error ── */
+    .error-card {
+      background: rgba(232,92,92,0.08); border: 1px solid rgba(232,92,92,0.25);
+      border-radius: 16px; padding: 32px; text-align: center;
+      animation: fadeUp 0.5s ease both;
+    }
+    .error-card h2 { font-family: var(--font-d); font-size: 22px; color: var(--red); margin-bottom: 10px; }
+    .error-card p  { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+    /* ── Result header ── */
+    .result-header {
+      display: flex; gap: 20px; align-items: stretch;
+      margin-bottom: 20px; animation: fadeUp 0.5s ease both;
+    }
+    .leaf-preview {
+      width: 160px; min-height: 160px; border-radius: 14px;
+      overflow: hidden; border: 1px solid var(--border);
+      flex-shrink: 0; background: #0f160d;
+    }
+    .leaf-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .leaf-no-image {
+      width: 100%; height: 100%; min-height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+    }
+
+    .diagnosis-card {
+      flex: 1; background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px;
+      display: flex; flex-direction: column; justify-content: center; gap: 16px;
+    }
+
+    .severity-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500; letter-spacing: 1.5px;
+      text-transform: uppercase; padding: 5px 12px;
+      border-radius: 40px; width: fit-content;
+    }
+    .sev-none     { background: rgba(109,235,80,0.1); color: var(--green); border: 1px solid rgba(109,235,80,0.2); }
+    .sev-moderate { background: rgba(240,165,0,0.1);  color: var(--amber); border: 1px solid rgba(240,165,0,0.2); }
+    .sev-severe   { background: rgba(232,92,92,0.1);  color: var(--red);   border: 1px solid rgba(232,92,92,0.2); }
+    .sev-unknown  { background: rgba(107,138,101,0.1);color: var(--muted); border: 1px solid var(--border); }
+
+    .disease-name { font-family: var(--font-d); font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+    .col-green { color: var(--green); }
+    .col-amber { color: var(--amber); }
+    .col-red   { color: var(--red);   }
+
+    .conf-label { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .conf-label strong { color: var(--text); font-size: 14px; }
+    .conf-track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .conf-fill  { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+    .fill-green { background: var(--green); }
+    .fill-amber { background: var(--amber); }
+    .fill-red   { background: var(--red);   }
+
+    /* ── Body grid ── */
+    .body-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+    @media (max-width: 600px) {
+      .body-grid { grid-template-columns: 1fr; }
+      .result-header { flex-direction: column; }
+      .leaf-preview { width: 100%; height: 200px; }
+    }
+
+    .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    .card-title {
+      font-size: 11px; font-weight: 500; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .treatment-text { font-size: 15px; line-height: 1.7; color: var(--text); font-weight: 300; }
+
+    .prec-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .prec-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text); font-weight: 300; line-height: 1.5; }
+    .prec-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
+    .prec-list.amber li::before { background: var(--amber); }
+    .prec-list.red   li::before { background: var(--red);   }
+
+    /* ── Probabilities ── */
+    .probs-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px; margin-top: 20px;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+    .prob-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .prob-row:last-child { margin-bottom: 0; }
+    .prob-name { font-size: 13px; color: var(--text); width: 120px; flex-shrink: 0; }
+    .prob-track { flex: 1; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .prob-fill  { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(0.16,1,0.3,1); }
+    .prob-val   { font-size: 13px; font-weight: 500; color: var(--muted); width: 48px; text-align: right; }
+
+    /* ── Actions ── */
+    .actions { display: flex; gap: 12px; margin-top: 24px; animation: fadeUp 0.5s 0.3s ease both; }
+    .btn {
+      flex: 1; padding: 14px; border-radius: 12px;
+      font-family: var(--font-d); font-size: 14px; font-weight: 700;
+      cursor: pointer; text-align: center; text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--green); color: #060e05; border: none; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(109,235,80,0.2); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--muted); }
+
+    @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Potato<span>Scan</span></div>
+  </nav>
+
+  <div class="page">
+
+    {% if error %}
+    <!-- ── Error state ── -->
+    <div class="error-card">
+      <h2>Analysis Failed</h2>
+      <p>{{ error }}</p>
+      <a href="/" class="btn btn-primary" style="margin-top:20px;max-width:180px;margin-left:auto;margin-right:auto;">Try Again</a>
+    </div>
+
+    {% elif result %}
+    <!-- ── Success state ── -->
+
+    {% set sev = result.severity %}
+    {% set col = 'col-green' if sev == 'none' else ('col-amber' if sev == 'moderate' else 'col-red') %}
+    {% set fill_col = 'fill-green' if sev == 'none' else ('fill-amber' if sev == 'moderate' else 'fill-red') %}
+    {% set sev_label = '✓ Healthy' if sev == 'none' else ('⚠ Moderate Risk' if sev == 'moderate' else '✕ Severe Risk') %}
+    {% set prec_class = '' if sev == 'none' else ('amber' if sev == 'moderate' else 'red') %}
+
+    <div class="result-header">
+
+      <!-- Uploaded leaf image -->
+      <div class="leaf-preview">
+        {% if image_url %}
+          <img src="{{ image_url }}" alt="Uploaded leaf"/>
+        {% else %}
+          <div class="leaf-no-image">🌿</div>
+        {% endif %}
+      </div>
+
+      <!-- Diagnosis -->
+      <div class="diagnosis-card">
+        <span class="severity-badge sev-{{ sev }}">{{ sev_label }}</span>
+
+        <div class="disease-name {{ col }}">{{ result.prediction }}</div>
+
+        <div>
+          <div class="conf-label">
+            <span>Model confidence</span>
+            <strong>{{ result.confidence }}%</strong>
+          </div>
+          <div class="conf-track">
+            <div class="conf-fill {{ fill_col }}" id="confBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Treatment + Precautions ── -->
+    <div class="body-grid">
+
+      <div class="info-card">
+        <div class="card-title">Recommended Treatment</div>
+        <p class="treatment-text">{{ result.treatment }}</p>
+      </div>
+
+      <div class="info-card">
+        <div class="card-title">Precautions</div>
+        <ul class="prec-list {{ prec_class }}">
+          {% for p in result.precautions %}
+            <li>{{ p }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- ── Probability breakdown ── -->
+    {% if result.all_probabilities %}
+    <div class="probs-card">
+      <div class="card-title">Class Probability Breakdown</div>
+      {% set colors = {'Healthy': '#6deb50', 'Early Blight': '#f0a500', 'Late Blight': '#e85c5c'} %}
+      {% for cls, pct in result.all_probabilities.items() %}
+      <div class="prob-row">
+        <div class="prob-name">{{ cls }}</div>
+        <div class="prob-track">
+          <div class="prob-fill"
+               data-width="{{ pct }}"
+               style="width:0%; background:{{ colors.get(cls, '#6b8a65') }}">
+          </div>
+        </div>
+        <div class="prob-val">{{ pct }}%</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ── Actions ── -->
+    <div class="actions">
+      <a href="/" class="btn btn-primary">Analyze Another</a>
+      <button class="btn btn-outline" onclick="window.print()">Save Report</button>
+    </div>
+
+    {% else %}
+    <div class="error-card">
+      <h2>No result found</h2>
+      <p>Please upload a leaf image from the home page.</p>
+      <a href="/" class="btn btn-primary" style="margin-top:20px;max-width:180px;margin-left:auto;margin-right:auto;">Go Home</a>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      // Animate confidence bar
+      const bar = document.getElementById('confBar');
+      if (bar) setTimeout(() => { bar.style.width = '{{ result.confidence if result else 0 }}%'; }, 200);
+
+      // Animate probability bars
+      document.querySelectorAll('.prob-fill[data-width]').forEach(el => {
+        setTimeout(() => {
+          el.style.transition = 'width 1s cubic-bezier(0.16,1,0.3,1)';
+          el.style.width = el.dataset.width + '%';
+        }, 300);
+      });
+    });
+  </script>
+
+</body>
+</html>
