@@ -226,6 +226,17 @@ app.get('/', (req, res) => {
 // GET /home — pass full user object to EJS
 app.get('/home', isAuth, async (req, res) => {
     try {
+        // Trial users have no DB record — build a fake user object
+        if (req.session.user.isTrial) {
+            const user = {
+                firstname:    req.session.user.name,
+                lastname:     '',
+                email:        null,
+                isTrial:      true,
+            };
+            return res.render('index.ejs', { user });
+        }
+
         const result = await client.query(
             'SELECT * FROM users WHERE id = $1', [req.session.user.id]
         );
@@ -342,6 +353,27 @@ app.get('/auth/google/callback',
         res.redirect('/home');
     }
 );
+//trial 
+// POST /trial — guest trial access (no DB, just name + phone)
+app.post('/trial', (req, res) => {
+    const { trialname, trialphone } = req.body;
+
+    if (!trialname || !trialphone)
+        return res.status(400).send('Name and phone are required.');
+
+    if (!/^\d{10}$/.test(trialphone.replace(/\s/g, '')))
+        return res.status(400).send('Enter a valid 10-digit phone number.');
+
+    req.session.regenerate(err => {
+        if (err) return res.status(500).send('Session error.');
+        req.session.user = {
+            id:       null,
+            name:     trialname,
+            isTrial:  true,
+        };
+        res.redirect('/home');
+    });
+});
 
 // GET /logout
 app.get('/logout', (req, res) => {

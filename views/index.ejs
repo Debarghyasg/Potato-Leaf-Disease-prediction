@@ -444,7 +444,13 @@
     <!-- User pill with first-letter avatar -->
 <div class="user-pill">
   <div class="user-avatar"><%= user.firstname.charAt(0).toUpperCase() %></div>
-  <span class="user-name"><%= user.firstname %> <%= user.lastname %></span>
+  <span class="user-name">
+    <%= user.firstname %>
+    <% if (!user.isTrial) { %><%= user.lastname %><% } %>
+    <% if (user.isTrial) { %>
+      <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--moss);margin-left:4px;letter-spacing:0.08em">TRIAL</span>
+    <% } %>
+  </span>
 </div>
     <!-- Logout button -->
     <a href="/logout" class="logout-btn">
