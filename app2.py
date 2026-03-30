@@ -14,7 +14,8 @@ CORS(app) # Allows the Node.js server to communicate without blocked requests
 
 # ── Load model & class names ──────────────────────────────────────
 # Ensure this file is in the same directory as app2.py
-model = tf.keras.models.load_model("potato_leaf_prodv1.keras")
+# app2.py line 17 — change to:
+model = tf.keras.models.load_model("potato_leaf_prod_v1.keras")
 
 try:
     with open("class_names.txt", "r") as f:
@@ -23,7 +24,7 @@ except FileNotFoundError:
     # Fallback if the file is missing
     class_names = ["Early Blight", "Late Blight", "Healthy"]
 
-IMG_SIZE = 128
+IMG_SIZE = 224
 print("Model Loaded. Detected Classes:", class_names)
 
 # ── Disease Metadata ──────────────────────────────────────────────
@@ -72,7 +73,7 @@ def preprocess_image(image_bytes):
     image = np.array(image)
     
     # ResNet specific preprocessing
-    image = tf.keras.applications.resnet.preprocess_input(image)
+    image = tf.keras.applications.efficientnet_v2.preprocess_input(image)
     image = np.expand_dims(image, axis=0)
     return image
 
