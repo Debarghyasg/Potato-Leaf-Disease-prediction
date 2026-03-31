@@ -414,7 +414,7 @@ app.post('/analyze', isAuth, upload.single('leafImage'), async (req, res) => {
 
         const response = await axios.post(`${FLASK_URL}/predict`, form, {
             headers: form.getHeaders(),
-            timeout: 30000,
+            timeout: 200000,
         });
 
         res.render('result.ejs', {
