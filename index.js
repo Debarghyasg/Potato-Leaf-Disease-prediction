@@ -220,17 +220,28 @@ passport.deserializeUser(async (id, done) => {
 // GET / — Login page
 app.get('/', (req, res) => {
     if (req.session.user) return res.redirect('/home');
-    res.render('Login.ejs');
+    res.render('Login_multilang.ejs');
 });
 
 // GET /home — pass full user object to EJS
 app.get('/home', isAuth, async (req, res) => {
     try {
+        // Trial users have no DB record — build a fake user object
+        if (req.session.user.isTrial) {
+            const user = {
+                firstname:    req.session.user.name,
+                lastname:     '',
+                email:        null,
+                isTrial:      true,
+            };
+            return res.render('index_multilang.ejs', { user });
+        }
+
         const result = await client.query(
             'SELECT * FROM users WHERE id = $1', [req.session.user.id]
         );
         const user = result.rows[0];
-        res.render('index.ejs', { user });
+        res.render('index_multilang.ejs', { user });
     } catch (err) {
         console.error('Home route error:', err.message);
         res.redirect('/');
@@ -240,7 +251,7 @@ app.get('/home', isAuth, async (req, res) => {
 // GET /signup
 app.get('/signup', (req, res) => {
     if (req.session.user) return res.redirect('/home');
-    res.render('signup.ejs');
+    res.render('signup_multilang.ejs');
 });
 
 // POST /signup
@@ -342,6 +353,31 @@ app.get('/auth/google/callback',
         res.redirect('/home');
     }
 );
+//trial 
+// POST /trial — guest trial access (no DB, just name + phone)
+app.post('/trial', (req, res) => {
+    
+    const trialname  = decodeURIComponent(req.body.trialname  || '');
+    const trialphone = decodeURIComponent(req.body.trialphone || '');
+    // rest stays the same
+
+
+    if (!trialname || !trialphone)
+        return res.status(400).send('Name and phone are required.');
+
+    if (!/^\d{10}$/.test(trialphone.replace(/\s/g, '')))
+        return res.status(400).send('Enter a valid 10-digit phone number.');
+
+    req.session.regenerate(err => {
+        if (err) return res.status(500).send('Session error.');
+        req.session.user = {
+            id:       null,
+            name:     trialname,
+            isTrial:  true,
+        };
+        res.redirect('/home');
+    });
+});
 
 // GET /logout
 app.get('/logout', (req, res) => {
@@ -378,7 +414,7 @@ app.post('/analyze', isAuth, upload.single('leafImage'), async (req, res) => {
 
         const response = await axios.post(`${FLASK_URL}/predict`, form, {
             headers: form.getHeaders(),
-            timeout: 30000,
+            timeout: 200000,
         });
 
         res.render('result.ejs', {

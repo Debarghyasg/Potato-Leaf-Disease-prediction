@@ -4,271 +4,448 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Result — PotatoScan</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="icon" href="image.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg: #080e07; --card: #141c12; --border: #1f2e1c;
-      --green: #6deb50; --green-dim: #2a5e20;
-      --amber: #f0a500; --red: #e85c5c;
-      --text: #ddecd8; --muted: #6b8a65;
-      --font-d: 'Syne', sans-serif; --font-b: 'DM Sans', sans-serif;
+      --soil: #ffffff;
+      --bark: #f0f7ee;
+      --moss: #4a8c3f;
+      --leaf: #5a9e4e;
+      --lime: #3a7d32;
+      --sun: #e8c84a;
+      --blight: #c0392b;
+      --cream: #faf8f4;
+      --fog: #5a6e52;
+      --text-dark: #1a2e16;
+      --text-mid: #3a5233;
+      --border: rgba(74, 140, 63, 0.25);
+      --glow: rgba(74, 140, 63, 0.12);
     }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      background: var(--bg); color: var(--text); font-family: var(--font-b);
-      min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; padding: 0 20px 80px; overflow-x: hidden;
+      background-color: var(--soil);
+      color: var(--text-dark);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
     }
+
+    /* Cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--moss); border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9999;
+      transition: transform 0.15s ease;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--moss); border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9998;
+      transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+      opacity: 0.5;
+    }
+
+    /* Grain overlay */
     body::before {
-      content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 100; opacity: 0.35;
+    }
+
+    /* BG radial glow */
+    .bg-glow {
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
       width: 900px; height: 600px;
-      background: radial-gradient(ellipse, rgba(60,120,40,0.15) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(144,208,120,0.18) 0%, transparent 70%);
       pointer-events: none; z-index: 0;
     }
-    nav {
-      width: 100%; max-width: 960px;
+
+    /* ── NAV ── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; align-items: center;
-      padding: 28px 0 32px; position: relative; z-index: 1;
+      padding: 20px 40px; z-index: 500; pointer-events: none;
     }
-    .logo { font-family: var(--font-d); font-size: 20px; font-weight: 800; color: var(--green); }
-    .logo span { color: var(--text); }
+    .top-nav > * { pointer-events: all; }
+    .nav-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; color: var(--moss);
+      letter-spacing: 0.1em; text-decoration: none;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.75);
+      border: 1.5px solid rgba(74,140,63,0.35);
+      color: var(--moss); padding: 8px 18px; border-radius: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 0.08em;
+      text-decoration: none; text-transform: uppercase;
+      transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+      backdrop-filter: blur(10px); cursor: none;
+    }
+    .back-btn:hover {
+      border-color: var(--moss); background: rgba(255,255,255,0.95);
+      transform: translateY(-1px); box-shadow: 0 4px 16px rgba(74,140,63,0.18);
+    }
 
-    .page { width: 100%; max-width: 860px; position: relative; z-index: 1; }
+    /* ── PAGE ── */
+    .page {
+      max-width: 920px; margin: 0 auto;
+      padding: 120px 40px 80px;
+      position: relative; z-index: 1;
+    }
 
-    /* ── Error ── */
+    .page-eyebrow {
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      letter-spacing: 0.15em; color: var(--moss); text-transform: uppercase;
+      margin-bottom: 8px; animation: fadeSlideUp 0.7s ease both;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .eyebrow-dot {
+      width: 6px; height: 6px; background: var(--moss);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.6; }
+    }
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 7vw, 88px);
+      line-height: 0.92; letter-spacing: 0.02em;
+      color: var(--text-dark); margin-bottom: 40px;
+      animation: fadeSlideUp 0.8s ease 0.05s both;
+    }
+
+    /* ── ERROR ── */
     .error-card {
-      background: rgba(232,92,92,0.08); border: 1px solid rgba(232,92,92,0.25);
-      border-radius: 16px; padding: 32px; text-align: center;
-      animation: fadeUp 0.5s ease both;
+      background: rgba(192,57,43,0.05);
+      border: 1px solid rgba(192,57,43,0.22);
+      border-radius: 20px; padding: 48px 40px; text-align: center;
+      animation: fadeSlideUp 0.6s ease both;
     }
-    .error-card h2 { font-family: var(--font-d); font-size: 22px; color: var(--red); margin-bottom: 10px; }
-    .error-card p  { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .error-card h2 {
+      font-family: 'Bebas Neue', sans-serif; font-size: 38px;
+      color: var(--blight); margin-bottom: 12px; letter-spacing: 0.04em;
+    }
+    .error-card p { color: var(--fog); font-size: 14px; line-height: 1.7; font-weight: 300; margin-bottom: 28px; }
 
-    /* ── Result header ── */
+    /* ── RESULT HEADER ── */
     .result-header {
-      display: flex; gap: 20px; align-items: stretch;
-      margin-bottom: 20px; animation: fadeUp 0.5s ease both;
+      display: flex; gap: 24px; align-items: stretch;
+      margin-bottom: 20px; animation: fadeSlideUp 0.6s ease both;
     }
     .leaf-preview {
-      width: 160px; min-height: 160px; border-radius: 14px;
+      width: 180px; min-height: 180px; border-radius: 18px;
       overflow: hidden; border: 1px solid var(--border);
-      flex-shrink: 0; background: #0f160d;
+      flex-shrink: 0; background: #f0f7ee;
+      box-shadow: 0 4px 20px rgba(74,140,63,0.1);
     }
-    .leaf-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .leaf-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .leaf-no-image {
-      width: 100%; height: 100%; min-height: 160px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 48px;
+      width: 100%; height: 100%; min-height: 180px;
+      display: flex; align-items: center; justify-content: center; font-size: 56px;
     }
 
     .diagnosis-card {
-      flex: 1; background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 28px;
-      display: flex; flex-direction: column; justify-content: center; gap: 16px;
+      flex: 1;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--border); border-radius: 18px; padding: 32px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 24px var(--glow), 0 8px 40px rgba(74,140,63,0.08);
+      display: flex; flex-direction: column; justify-content: center; gap: 20px;
+      position: relative; overflow: hidden;
+      animation: cardGlow 4s ease 1s infinite;
+    }
+    .diagnosis-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(144,208,120,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    @keyframes cardGlow {
+      0%,100% { box-shadow: 0 4px 24px rgba(74,140,63,0.10), 0 2px 8px rgba(0,0,0,0.04); }
+      50%      { box-shadow: 0 4px 24px rgba(74,140,63,0.22), 0 2px 8px rgba(0,0,0,0.04); }
     }
 
     .severity-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11px; font-weight: 500; letter-spacing: 1.5px;
-      text-transform: uppercase; padding: 5px 12px;
-      border-radius: 40px; width: fit-content;
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 40px; width: fit-content; font-weight: 700;
     }
-    .sev-none     { background: rgba(109,235,80,0.1); color: var(--green); border: 1px solid rgba(109,235,80,0.2); }
-    .sev-moderate { background: rgba(240,165,0,0.1);  color: var(--amber); border: 1px solid rgba(240,165,0,0.2); }
-    .sev-severe   { background: rgba(232,92,92,0.1);  color: var(--red);   border: 1px solid rgba(232,92,92,0.2); }
-    .sev-unknown  { background: rgba(107,138,101,0.1);color: var(--muted); border: 1px solid var(--border); }
+    .sev-none     { background: rgba(74,140,63,0.1);  color: var(--moss);   border: 1px solid rgba(74,140,63,0.3); }
+    .sev-moderate { background: rgba(232,200,74,0.12); color: #7a5c00;       border: 1px solid rgba(232,200,74,0.4); }
+    .sev-severe   { background: rgba(192,57,43,0.08);  color: var(--blight); border: 1px solid rgba(192,57,43,0.25); }
+    .sev-unknown  { background: rgba(90,110,82,0.08);  color: var(--fog);    border: 1px solid var(--border); }
 
-    .disease-name { font-family: var(--font-d); font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
-    .col-green { color: var(--green); }
-    .col-amber { color: var(--amber); }
-    .col-red   { color: var(--red);   }
+    .disease-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(38px, 5vw, 58px);
+      letter-spacing: 0.03em; line-height: 1;
+    }
+    .col-green { color: var(--moss); }
+    .col-amber { color: #9a6e00; }
+    .col-red   { color: var(--blight); }
 
-    .conf-label { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 6px; }
-    .conf-label strong { color: var(--text); font-size: 14px; }
-    .conf-track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
-    .conf-fill  { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
-    .fill-green { background: var(--green); }
-    .fill-amber { background: var(--amber); }
-    .fill-red   { background: var(--red);   }
+    .conf-label {
+      font-family: 'Space Mono', monospace; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--fog); display: flex; justify-content: space-between; margin-bottom: 8px;
+    }
+    .conf-label strong { color: var(--text-dark); }
+    .conf-track { height: 5px; background: rgba(74,140,63,0.12); border-radius: 99px; overflow: hidden; }
+    .conf-fill  { height: 100%; border-radius: 99px; transition: width 1.4s cubic-bezier(0.16,1,0.3,1); }
+    .fill-green { background: var(--moss); }
+    .fill-amber { background: var(--sun); }
+    .fill-red   { background: var(--blight); }
 
-    /* ── Body grid ── */
+    /* ── GRID ── */
     .body-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-      animation: fadeUp 0.5s 0.1s ease both;
-    }
-    @media (max-width: 600px) {
-      .body-grid { grid-template-columns: 1fr; }
-      .result-header { flex-direction: column; }
-      .leaf-preview { width: 100%; height: 200px; }
+      animation: fadeSlideUp 0.7s ease 0.1s both;
     }
 
-    .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-    .card-title {
-      font-size: 11px; font-weight: 500; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+    .info-card {
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--border); border-radius: 18px; padding: 28px;
+      backdrop-filter: blur(20px); box-shadow: 0 2px 16px var(--glow);
+      transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+      position: relative; overflow: hidden;
+    }
+    .info-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--moss);
+      transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
+    }
+    .info-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(74,140,63,0.14); }
+    .info-card:hover::after { transform: scaleX(1); }
+
+    .card-label {
+      font-family: 'Space Mono', monospace; font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--fog); margin-bottom: 16px;
       display: flex; align-items: center; gap: 8px;
     }
-    .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .treatment-text { font-size: 15px; line-height: 1.7; color: var(--text); font-weight: 300; }
+    .card-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .treatment-text { font-size: 14px; line-height: 1.75; color: var(--text-mid); font-weight: 300; }
 
     .prec-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .prec-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text); font-weight: 300; line-height: 1.5; }
-    .prec-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
-    .prec-list.amber li::before { background: var(--amber); }
-    .prec-list.red   li::before { background: var(--red);   }
+    .prec-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--text-mid); font-weight: 300; line-height: 1.55;
+    }
+    .prec-list li::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--moss); flex-shrink: 0; margin-top: 5px;
+    }
+    .prec-list.amber li::before { background: var(--sun); }
+    .prec-list.red   li::before { background: var(--blight); }
 
-    /* ── Probabilities ── */
+    /* ── PROBABILITIES ── */
     .probs-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 24px; margin-top: 20px;
-      animation: fadeUp 0.5s 0.2s ease both;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--border); border-radius: 18px; padding: 28px;
+      margin-top: 20px; backdrop-filter: blur(20px);
+      box-shadow: 0 2px 16px var(--glow);
+      animation: fadeSlideUp 0.7s ease 0.2s both;
     }
-    .prob-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .prob-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .prob-row:last-child { margin-bottom: 0; }
-    .prob-name { font-size: 13px; color: var(--text); width: 120px; flex-shrink: 0; }
-    .prob-track { flex: 1; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
-    .prob-fill  { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(0.16,1,0.3,1); }
-    .prob-val   { font-size: 13px; font-weight: 500; color: var(--muted); width: 48px; text-align: right; }
-
-    /* ── Actions ── */
-    .actions { display: flex; gap: 12px; margin-top: 24px; animation: fadeUp 0.5s 0.3s ease both; }
-    .btn {
-      flex: 1; padding: 14px; border-radius: 12px;
-      font-family: var(--font-d); font-size: 14px; font-weight: 700;
-      cursor: pointer; text-align: center; text-decoration: none;
-      display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+    .prob-name {
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      color: var(--text-dark); width: 120px; flex-shrink: 0; letter-spacing: 0.04em;
     }
-    .btn-primary { background: var(--green); color: #060e05; border: none; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(109,235,80,0.2); }
-    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn-outline:hover { border-color: var(--muted); }
+    .prob-track { flex: 1; height: 4px; background: rgba(74,140,63,0.1); border-radius: 99px; overflow: hidden; }
+    .prob-fill  { height: 100%; border-radius: 99px; transition: width 1.1s cubic-bezier(0.16,1,0.3,1); }
+    .prob-val   {
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      color: var(--fog); width: 48px; text-align: right;
+    }
 
-    @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    /* ── ACTIONS ── */
+    .actions {
+      display: flex; gap: 14px; margin-top: 24px;
+      animation: fadeSlideUp 0.7s ease 0.3s both;
+    }
+    .btn {
+      flex: 1; padding: 16px 20px; border-radius: 14px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+      letter-spacing: 0.06em; cursor: none; text-align: center;
+      text-decoration: none; display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+      transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+      position: relative; overflow: hidden;
+    }
+    .btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: translateX(-100%); transition: transform 0.55s ease;
+    }
+    .btn:hover::before { transform: translateX(100%); }
+    .btn-primary { background: var(--moss); color: #ffffff; border: none; }
+    .btn-primary:hover { background: var(--lime); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(74,140,63,0.35); }
+    .btn-outline { background: rgba(255,255,255,0.75); color: var(--text-dark); border: 1.5px solid var(--border); backdrop-filter: blur(10px); }
+    .btn-outline:hover { border-color: var(--moss); transform: translateY(-2px); box-shadow: 0 6px 20px var(--glow); }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .body-grid { grid-template-columns: 1fr; }
+      .result-header { flex-direction: column; }
+      .leaf-preview { width: 100%; height: 220px; }
+      .page { padding: 100px 20px 60px; }
+      .top-nav { padding: 16px 20px; }
+    }
   </style>
 </head>
 <body>
 
-  <nav>
-    <div class="logo">Potato<span>Scan</span></div>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="bg-glow"></div>
+
+  <nav class="top-nav">
+    <a href="/home" class="nav-brand">PotatoScan</a>
+    <a href="/home" class="back-btn">← New Scan</a>
   </nav>
 
   <div class="page">
 
-    {% if error %}
-    <!-- ── Error state ── -->
-    <div class="error-card">
-      <h2>Analysis Failed</h2>
-      <p>{{ error }}</p>
-      <a href="/" class="btn btn-primary" style="margin-top:20px;max-width:180px;margin-left:auto;margin-right:auto;">Try Again</a>
-    </div>
+    <% if (error) { %>
 
-    {% elif result %}
-    <!-- ── Success state ── -->
-
-    {% set sev = result.severity %}
-    {% set col = 'col-green' if sev == 'none' else ('col-amber' if sev == 'moderate' else 'col-red') %}
-    {% set fill_col = 'fill-green' if sev == 'none' else ('fill-amber' if sev == 'moderate' else 'fill-red') %}
-    {% set sev_label = '✓ Healthy' if sev == 'none' else ('⚠ Moderate Risk' if sev == 'moderate' else '✕ Severe Risk') %}
-    {% set prec_class = '' if sev == 'none' else ('amber' if sev == 'moderate' else 'red') %}
-
-    <div class="result-header">
-
-      <!-- Uploaded leaf image -->
-      <div class="leaf-preview">
-        {% if image_url %}
-          <img src="{{ image_url }}" alt="Uploaded leaf"/>
-        {% else %}
-          <div class="leaf-no-image">🌿</div>
-        {% endif %}
+      <div class="page-eyebrow"><span class="eyebrow-dot"></span>Scan Result</div>
+      <div class="page-title">Analysis<br>Failed</div>
+      <div class="error-card">
+        <h2>Something Went Wrong</h2>
+        <p><%= error %></p>
+        <a href="/home" class="btn btn-primary" style="max-width:200px;margin:0 auto;">Try Again</a>
       </div>
 
-      <!-- Diagnosis -->
-      <div class="diagnosis-card">
-        <span class="severity-badge sev-{{ sev }}">{{ sev_label }}</span>
+    <% } else if (result) { %>
 
-        <div class="disease-name {{ col }}">{{ result.prediction }}</div>
+      <%
+        var sev       = result.severity;
+        var col       = sev === 'none' ? 'col-green' : (sev === 'moderate' ? 'col-amber' : 'col-red');
+        var fillCol   = sev === 'none' ? 'fill-green' : (sev === 'moderate' ? 'fill-amber' : 'fill-red');
+        var sevLabel  = sev === 'none' ? '✓ Healthy'  : (sev === 'moderate' ? '⚠ Moderate Risk' : '✕ Severe Risk');
+        var precClass = sev === 'none' ? ''            : (sev === 'moderate' ? 'amber' : 'red');
+        var probColors = { 'Healthy': '#4a8c3f', 'Early Blight': '#c8a000', 'Late Blight': '#c0392b' };
+      %>
 
-        <div>
-          <div class="conf-label">
-            <span>Model confidence</span>
-            <strong>{{ result.confidence }}%</strong>
-          </div>
-          <div class="conf-track">
-            <div class="conf-fill {{ fill_col }}" id="confBar" style="width:0%"></div>
+      <div class="page-eyebrow"><span class="eyebrow-dot"></span>Scan Complete</div>
+      <div class="page-title">Diagnosis<br>Result</div>
+
+      <div class="result-header">
+        <div class="leaf-preview">
+          <% if (imageUrl) { %>
+            <img src="<%= imageUrl %>" alt="Uploaded leaf"/>
+          <% } else { %>
+            <div class="leaf-no-image">🌿</div>
+          <% } %>
+        </div>
+
+        <div class="diagnosis-card">
+          <span class="severity-badge sev-<%= sev %>"><%= sevLabel %></span>
+          <div class="disease-name <%= col %>"><%= result.prediction %></div>
+          <div>
+            <div class="conf-label">
+              <span>Model Confidence</span>
+              <strong><%= result.confidence %>%</strong>
+            </div>
+            <div class="conf-track">
+              <div class="conf-fill <%= fillCol %>" id="confBar" style="width:0%"></div>
+            </div>
           </div>
         </div>
       </div>
 
-    </div>
-
-    <!-- ── Treatment + Precautions ── -->
-    <div class="body-grid">
-
-      <div class="info-card">
-        <div class="card-title">Recommended Treatment</div>
-        <p class="treatment-text">{{ result.treatment }}</p>
-      </div>
-
-      <div class="info-card">
-        <div class="card-title">Precautions</div>
-        <ul class="prec-list {{ prec_class }}">
-          {% for p in result.precautions %}
-            <li>{{ p }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-    </div>
-
-    <!-- ── Probability breakdown ── -->
-    {% if result.all_probabilities %}
-    <div class="probs-card">
-      <div class="card-title">Class Probability Breakdown</div>
-      {% set colors = {'Healthy': '#6deb50', 'Early Blight': '#f0a500', 'Late Blight': '#e85c5c'} %}
-      {% for cls, pct in result.all_probabilities.items() %}
-      <div class="prob-row">
-        <div class="prob-name">{{ cls }}</div>
-        <div class="prob-track">
-          <div class="prob-fill"
-               data-width="{{ pct }}"
-               style="width:0%; background:{{ colors.get(cls, '#6b8a65') }}">
-          </div>
+      <div class="body-grid">
+        <div class="info-card">
+          <div class="card-label">Recommended Treatment</div>
+          <p class="treatment-text"><%= result.treatment %></p>
         </div>
-        <div class="prob-val">{{ pct }}%</div>
+        <div class="info-card">
+          <div class="card-label">Precautions</div>
+          <ul class="prec-list <%= precClass %>">
+            <% result.precautions.forEach(function(p) { %>
+              <li><%= p %></li>
+            <% }); %>
+          </ul>
+        </div>
       </div>
-      {% endfor %}
-    </div>
-    {% endif %}
 
-    <!-- ── Actions ── -->
-    <div class="actions">
-      <a href="/" class="btn btn-primary">Analyze Another</a>
-      <button class="btn btn-outline" onclick="window.print()">Save Report</button>
-    </div>
+      <% if (result.all_probabilities) { %>
+      <div class="probs-card">
+        <div class="card-label">Class Probability Breakdown</div>
+        <% Object.entries(result.all_probabilities).forEach(function(entry) {
+             var cls = entry[0], pct = entry[1];
+             var barColor = probColors[cls] || '#4a8c3f';
+        %>
+        <div class="prob-row">
+          <div class="prob-name"><%= cls %></div>
+          <div class="prob-track">
+            <div class="prob-fill" data-width="<%= pct %>" style="width:0%;background:<%= barColor %>"></div>
+          </div>
+          <div class="prob-val"><%= pct %>%</div>
+        </div>
+        <% }); %>
+      </div>
+      <% } %>
 
-    {% else %}
-    <div class="error-card">
-      <h2>No result found</h2>
-      <p>Please upload a leaf image from the home page.</p>
-      <a href="/" class="btn btn-primary" style="margin-top:20px;max-width:180px;margin-left:auto;margin-right:auto;">Go Home</a>
-    </div>
-    {% endif %}
+      <div class="actions">
+        <a href="/home" class="btn btn-primary">⬡ Analyze Another</a>
+        <button class="btn btn-outline" onclick="window.print()">Save Report</button>
+      </div>
+
+    <% } else { %>
+
+      <div class="page-eyebrow"><span class="eyebrow-dot"></span>No Result</div>
+      <div class="page-title">Nothing<br>Here</div>
+      <div class="error-card">
+        <h2>No Result Found</h2>
+        <p>Please upload a leaf image from the home page to get a diagnosis.</p>
+        <a href="/home" class="btn btn-primary" style="max-width:200px;margin:0 auto;">Go Home</a>
+      </div>
+
+    <% } %>
 
   </div>
 
   <script>
-    window.addEventListener('load', () => {
-      // Animate confidence bar
-      const bar = document.getElementById('confBar');
-      if (bar) setTimeout(() => { bar.style.width = '{{ result.confidence if result else 0 }}%'; }, 200);
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx - 6 + 'px';
+      cursor.style.top  = my - 6 + 'px';
+    });
+    (function animateRing() {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animateRing);
+    })();
+    document.querySelectorAll('a, button, .info-card, .probs-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(2.5)');
+      el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+    });
 
-      // Animate probability bars
+    window.addEventListener('load', () => {
+      const confBar = document.getElementById('confBar');
+      if (confBar) setTimeout(() => { confBar.style.width = '<%= result ? result.confidence : 0 %>%'; }, 300);
       document.querySelectorAll('.prob-fill[data-width]').forEach(el => {
-        setTimeout(() => {
-          el.style.transition = 'width 1s cubic-bezier(0.16,1,0.3,1)';
-          el.style.width = el.dataset.width + '%';
-        }, 300);
+        setTimeout(() => { el.style.width = el.dataset.width + '%'; }, 500);
       });
     });
   </script>

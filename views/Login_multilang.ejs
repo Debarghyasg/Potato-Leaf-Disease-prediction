@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="icon" href="image.png">
+<title>PotatoScan — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&family=Noto+Sans+Devanagari:wght@300;400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #ffffff;
+    --cream: #faf8f4;
+    --moss: #3a7d32;
+    --moss-dark: #2e6626;
+    --leaf: #5a9e4e;
+    --leaf-mist: #f0f9ed;
+    --leaf-pale: #e8f4e4;
+    --text-dark: #1a2e16;
+    --text-mid: #3a5233;
+    --text-soft: #6a8265;
+    --border: rgba(74,140,63,0.22);
+    --error: #c0392b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    min-height: 100vh;
+    background: var(--cream);
+    font-family: 'DM Sans', 'Noto Sans Devanagari', 'Noto Sans Bengali', sans-serif;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* ── Custom Cursor ── */
+  .cursor { width:10px;height:10px;background:var(--moss);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.15s ease; }
+  .cursor-ring { width:34px;height:34px;border:1.5px solid var(--moss);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;opacity:0.4;transform:translate(-50%,-50%);transition:all 0.32s cubic-bezier(0.23,1,0.32,1); }
+  .cursor.big { transform:translate(-50%,-50%) scale(2.4); }
+  .cursor-ring.big { opacity:0.18;transform:translate(-50%,-50%) scale(1.5); }
+
+  /* ── Language Switcher ── */
+  .lang-switcher {
+    display: flex; gap: 4px; align-items: center;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px; padding: 4px;
+    backdrop-filter: blur(8px);
+  }
+  .lang-btn {
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; padding: 5px 10px; border-radius: 14px;
+    border: none; background: transparent; color: rgba(255,255,255,0.65);
+    cursor: pointer; transition: all 0.25s ease;
+  }
+  .lang-btn.active, .lang-btn:hover {
+    background: rgba(255,255,255,0.25); color: #fff;
+  }
+  .lang-btn.active { background: rgba(255,255,255,0.3); font-weight: 700; }
+
+  /* Right-panel language switcher variant */
+  .lang-switcher.light {
+    background: rgba(58,125,50,0.07);
+    border-color: rgba(58,125,50,0.2);
+  }
+  .lang-switcher.light .lang-btn { color: var(--text-soft); }
+  .lang-switcher.light .lang-btn.active,
+  .lang-switcher.light .lang-btn:hover { background: var(--moss); color: #fff; }
+
+  /* ── Trial Modal ── */
+  .trial-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(26,46,22,0.55); z-index: 1000;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .trial-modal-overlay.open { display: flex; }
+  .trial-modal {
+    background: var(--white); border-radius: 20px; padding: 40px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 24px 64px rgba(58,125,50,0.2);
+    animation: slideIn 0.5s cubic-bezier(0.23,1,0.32,1) both;
+    position: relative;
+  }
+  .trial-close { position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:20px;transition:color 0.2s; }
+  .trial-close:hover { color:var(--text-dark); }
+  .trial-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(58,125,50,0.1);border:1px solid rgba(58,125,50,0.25);padding:4px 12px;border-radius:20px;font-family:'Space Mono',monospace;font-size:10px;color:var(--moss);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px; }
+  .trial-title { font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:0.95;color:var(--text-dark);letter-spacing:0.02em;margin-bottom:8px; }
+  .trial-title span { color:var(--moss); }
+  .trial-desc { font-size:13px;color:var(--text-soft);font-weight:300;line-height:1.65;margin-bottom:28px; }
+  .trial-note { font-size:11px;color:var(--text-soft);font-weight:300;font-family:'Space Mono',monospace;letter-spacing:0.04em;margin-top:14px;text-align:center; }
+
+  /* ── Left Panel ── */
+  .left-panel {
+    width: 48%; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(145deg,#2e6626 0%,#3a7d32 50%,#4a9e40 100%);
+    padding: 40px 56px; flex-shrink: 0;
+  }
+  .left-top { display:flex;align-items:center;justify-content:space-between; }
+  .ring { position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.08);top:50%;left:50%;transform:translate(-50%,-50%);animation:rotateSlow linear infinite; }
+  .ring:nth-child(1){width:320px;height:320px;animation-duration:30s;}
+  .ring:nth-child(2){width:520px;height:520px;animation-duration:48s;animation-direction:reverse;}
+  .ring:nth-child(3){width:700px;height:700px;animation-duration:66s;border-style:dashed;}
+  @keyframes rotateSlow { to { transform:translate(-50%,-50%) rotate(360deg); } }
+  .hero-leaf { position:absolute;opacity:0.12;right:-60px;top:50%;transform:translateY(-50%);animation:sway 8s ease-in-out infinite; }
+  @keyframes sway { 0%,100%{transform:translateY(-50%) rotate(-4deg);}50%{transform:translateY(-52%) rotate(4deg);} }
+  .mini-leaf { position:absolute;pointer-events:none;opacity:0;animation:riseLeaf linear infinite; }
+  @keyframes riseLeaf { 0%{opacity:0;transform:translateY(80px) rotate(0deg) scale(0.7);}12%{opacity:0.22;}88%{opacity:0.14;}100%{opacity:0;transform:translateY(-280px) rotate(200deg) scale(1);} }
+
+  .panel-inner { position:relative;z-index:2;text-align:center;max-width:360px;margin:auto; }
+  .panel-logo { display:inline-flex;align-items:center;gap:12px;margin-bottom:32px;text-decoration:none; }
+  .logo-icon { width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);transition:transform 0.3s ease; }
+  .panel-logo:hover .logo-icon { transform:rotate(-8deg) scale(1.1); }
+  .logo-text { font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.1em;color:#fff; }
+  .panel-headline { font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,4.5vw,68px);line-height:0.92;letter-spacing:0.02em;color:#fff;margin-bottom:20px; }
+  .panel-headline .muted { color:rgba(255,255,255,0.45);display:block;font-size:0.6em;letter-spacing:0.1em; }
+  .panel-desc { font-size:14px;line-height:1.8;color:rgba(255,255,255,0.65);font-weight:300;margin-bottom:40px; }
+  .stats-row { display:flex;justify-content:center;gap:24px; }
+  .stat { text-align:center;padding:14px 18px;background:rgba(255,255,255,0.08);border-radius:14px;border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(6px);transition:transform 0.3s ease; }
+  .stat:hover { transform:translateY(-4px); }
+  .stat-num { font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;letter-spacing:0.04em;line-height:1; }
+  .stat-lbl { font-size:10px;font-family:'Space Mono',monospace;color:rgba(255,255,255,0.5);letter-spacing:0.1em;margin-top:4px;text-transform:uppercase; }
+
+  /* ── Right Panel ── */
+  .right-panel {
+    flex:1;display:flex;align-items:center;justify-content:center;
+    background:var(--white);padding:40px 60px;
+    position:relative;overflow:hidden;overflow-y:auto;
+  }
+  .right-panel::before { content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 90% 10%,rgba(90,158,78,0.06) 0%,transparent 50%),radial-gradient(circle at 10% 90%,rgba(168,217,108,0.06) 0%,transparent 50%);pointer-events:none; }
+
+  .right-top { position:absolute;top:24px;right:28px;z-index:10; }
+
+  .form-box { width:100%;max-width:400px;position:relative;z-index:1;animation:slideIn 0.75s cubic-bezier(0.23,1,0.32,1) both; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(32px);}to{opacity:1;transform:translateY(0);} }
+
+  .form-eyebrow { display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.16em;color:var(--moss);text-transform:uppercase;margin-bottom:12px; }
+  .eyebrow-line { width:28px;height:1.5px;background:var(--moss);border-radius:1px; }
+  .form-title { font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,4.5vw,62px);line-height:0.93;color:var(--text-dark);letter-spacing:0.02em;margin-bottom:8px; }
+  .form-title .green { color:var(--moss); }
+  .form-sub { font-size:14px;color:var(--text-soft);font-weight:300;margin-bottom:28px;line-height:1.6; }
+  .form-sub a { color:var(--moss);font-weight:500;text-decoration:none;border-bottom:1.5px solid rgba(58,125,50,0.3);transition:border-color 0.2s; }
+  .form-sub a:hover { border-color:var(--moss); }
+
+  /* .field-group { margin-bottom:18px; } */
+  .field-label { display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-mid);margin-bottom:7px; }
+  .input-wrap { position:relative;display:flex;align-items:center; }
+  .i-icon { position:absolute;left:15px;color:var(--text-soft);pointer-events:none;transition:color 0.25s;display:flex;align-items:center; }
+
+  input[type="email"],input[type="password"],input[type="text"],input[type="tel"] {
+    width:100%;padding:14px 14px 14px 44px;border:1.5px solid var(--border);border-radius:13px;
+    background:var(--leaf-mist);font-family:'DM Sans','Noto Sans Devanagari','Noto Sans Bengali',sans-serif;
+    font-size:14.5px;color:var(--text-dark);outline:none;
+    transition:all 0.28s cubic-bezier(0.23,1,0.32,1);appearance:none;cursor:text;
+  }
+  input::placeholder { color:var(--text-soft);opacity:0.65; }
+  input:focus { border-color:var(--moss);background:var(--white);box-shadow:0 0 0 3.5px rgba(58,125,50,0.1); }
+  .input-wrap:focus-within .i-icon { color:var(--moss); }
+
+  .field-group.valid input { border-color:rgba(58,125,50,0.55);background:#f3fbf1; }
+  .field-group.error input { border-color:rgba(192,57,43,0.5);background:#fff8f7;animation:shake 0.4s cubic-bezier(0.36,0.07,0.19,0.97); }
+  @keyframes shake { 0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);} }
+
+  .tick { position:absolute;right:14px;color:var(--moss);opacity:0;transition:opacity 0.25s;pointer-events:none; }
+  .field-group.valid .tick { opacity:1; }
+  .err-msg { font-size:11px;color:var(--error);font-family:'Space Mono',monospace;margin-top:5px;opacity:0;transform:translateY(-5px);transition:all 0.25s ease;min-height:15px; }
+  .field-group.error .err-msg { opacity:1;transform:translateY(0); }
+
+  .pw-toggle-btn { position:absolute;right:14px;background:none;border:none;cursor:pointer;color:var(--text-soft);padding:0;display:flex;align-items:center;transition:color 0.2s;z-index:1; }
+  .pw-toggle-btn:hover { color:var(--moss); }
+  .forgot-link { display:block;text-align:right;font-size:12px;color:var(--moss);font-weight:500;font-family:'Space Mono',monospace;letter-spacing:0.04em;text-decoration:none;margin-top:8px;transition:opacity 0.2s; }
+  .forgot-link:hover { opacity:0.7; }
+
+  .remember-row { display:flex;align-items:center;gap:10px;margin:18px 0 16px; }
+  #rememberMe { display:none; }
+  .check-box { width:19px;height:19px;border:1.5px solid var(--border);border-radius:6px;background:var(--leaf-mist);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.22s ease;flex-shrink:0; }
+  #rememberMe:checked + .check-box { background:var(--moss);border-color:var(--moss); }
+  #rememberMe:checked + .check-box::after { content:'';width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block; }
+  .remember-label { font-size:13px;color:var(--text-soft);cursor:pointer;user-select:none; }
+
+  .signin-btn { width:100%;padding:16px;background:var(--moss);color:#fff;border:none;border-radius:13px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.09em;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.23,1,0.32,1); }
+  .signin-btn::before { content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transform:translateX(-100%);transition:transform 0.55s ease; }
+  .signin-btn:hover::before { transform:translateX(100%); }
+  .signin-btn:hover { background:var(--moss-dark);transform:translateY(-2px);box-shadow:0 14px 30px rgba(58,125,50,0.36); }
+  .signin-btn:disabled { background:#b5cdb0;cursor:not-allowed;transform:none;box-shadow:none; }
+
+  .btn-inner { display:flex;align-items:center;justify-content:center;gap:10px; }
+  .btn-spinner { width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .or-divider { display:flex;align-items:center;gap:14px;margin:18px 0 14px; }
+  .or-line { flex:1;height:1px;background:var(--border); }
+  .or-text { font-family:'Space Mono',monospace;font-size:10px;color:var(--text-soft);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap; }
+
+  .social-btn { display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px 16px;border:1.5px solid var(--border);border-radius:11px;background:var(--leaf-mist);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text-dark);cursor:pointer;transition:all 0.25s ease;text-decoration:none; }
+  .social-btn:hover { border-color:var(--moss);background:var(--white);box-shadow:0 2px 12px rgba(74,140,63,0.1);transform:translateY(-1px); }
+
+  .trial-btn { width:100%;padding:14px;background:transparent;border:1.5px solid var(--border);color:var(--moss);border-radius:13px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.08em;cursor:pointer;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);display:flex;align-items:center;justify-content:center;gap:8px; }
+  .trial-btn:hover { border-color:var(--moss);background:var(--leaf-mist);transform:translateY(-2px);box-shadow:0 8px 24px rgba(58,125,50,0.15); }
+  .trial-hint { text-align:center;margin-top:8px;font-size:11px;color:var(--text-soft);font-family:'Space Mono',monospace;letter-spacing:0.04em; }
+
+  .error-banner { display:none;align-items:center;gap:10px;padding:13px 16px;background:rgba(192,57,43,0.07);border:1px solid rgba(192,57,43,0.25);border-radius:11px;margin-bottom:16px;font-size:13px;color:var(--error); }
+  .error-banner.show { display:flex; }
+
+  .success-overlay { display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center; }
+  .success-overlay.show { display:flex; }
+  .success-circle { width:76px;height:76px;background:linear-gradient(135deg,var(--leaf),var(--moss));border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 10px 28px rgba(58,125,50,0.3);animation:popBounce 0.65s cubic-bezier(0.34,1.56,0.64,1) 0.1s both; }
+  @keyframes popBounce { from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;} }
+  .success-title { font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--text-dark);letter-spacing:0.03em;line-height:1;margin-bottom:10px; }
+  .success-title span { color:var(--moss); }
+  .success-desc { font-size:14px;color:var(--text-soft);font-weight:300;line-height:1.7;margin-bottom:30px; }
+  .goto-btn { display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--moss);color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.08em;cursor:pointer;text-decoration:none;transition:all 0.3s ease; }
+  .goto-btn:hover { background:var(--moss-dark);transform:translateY(-2px);box-shadow:0 10px 22px rgba(58,125,50,0.3); }
+
+  @media (max-width:820px) {
+    body { flex-direction:column;overflow-y:auto; }
+    .left-panel { width:100%;min-height:auto;padding:28px 24px; }
+    .panel-headline,.panel-desc,.stats-row { display:none; }
+    .right-panel { padding:40px 24px;overflow-y:auto; }
+    .right-top { top:16px;right:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curRing"></div>
+
+<!-- ══ TRIAL MODAL ══ -->
+<div class="trial-modal-overlay" id="trialOverlay">
+  <div class="trial-modal">
+    <button class="trial-close" onclick="closeTrial()">✕</button>
+    <div class="trial-badge" data-i18n="trial.badge">⚡ Free Trial</div>
+    <div class="trial-title">
+      <span data-i18n="trial.title1">Try It</span><br>
+      <span style="color:var(--moss)" data-i18n="trial.title2">Free</span>
+    </div>
+    <p class="trial-desc" data-i18n="trial.desc">No account needed. Just enter your name and phone to get instant access.</p>
+    <form id="trialForm" novalidate>
+      <div class="field-group" id="fg-trialname" style="margin-bottom:18px">
+        <div class="field-label" data-i18n="trial.name.label">Your Name</div>
+        <div class="input-wrap">
+          <span class="i-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <input type="text" id="trialName" data-i18n-ph="trial.name.ph" placeholder="e.g. Arjun" autocomplete="given-name">
+          <span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+        </div>
+        <div class="err-msg" id="trialNameErr" data-i18n="trial.name.err">Please enter your name</div>
+      </div>
+      <div class="field-group" id="fg-trialphone" style="margin-bottom:18px">
+        <div class="field-label" data-i18n="trial.phone.label">Phone Number</div>
+        <div class="input-wrap">
+          <span class="i-icon" style="font-size:13px;font-weight:500;color:var(--text-mid);left:14px">+91</span>
+          <input type="tel" id="trialPhone" data-i18n-ph="trial.phone.ph" placeholder="98765 43210" maxlength="10" style="padding-left:52px" autocomplete="tel">
+          <span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+        </div>
+        <div class="err-msg" id="trialPhoneErr" data-i18n="trial.phone.err">Enter a valid 10-digit number</div>
+      </div>
+      <button type="submit" class="signin-btn" id="trialSubmitBtn">
+        <div class="btn-inner">
+          <div class="btn-spinner" id="trialSpinner"></div>
+          <span id="trialBtnText" data-i18n="trial.btn">Start Free Trial →</span>
+        </div>
+      </button>
+    </form>
+    <p class="trial-note" data-i18n="trial.note">No password · No email · Scan up to 3 images</p>
+  </div>
+</div>
+
+<!-- ══ LEFT PANEL ══ -->
+<div class="left-panel">
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  <div class="hero-leaf">
+    <svg width="320" height="420" viewBox="0 0 320 420" fill="none">
+      <path d="M160 10C90 70 30 160 60 260C90 360 220 400 270 310C320 220 280 80 160 10Z" fill="white"/>
+      <path d="M160 10 L160 400" stroke="white" stroke-width="2" opacity="0.4"/>
+      <path d="M160 80 Q200 140 240 200" stroke="white" stroke-width="1.5" opacity="0.3"/>
+      <path d="M160 120 Q120 170 90 230" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    </svg>
+  </div>
+  <div id="miniLeaves"></div>
+
+  <div class="left-top">
+    <a href="#" class="panel-logo" style="margin-bottom:0">
+      <div class="logo-icon">🌿</div>
+      <span class="logo-text">PotatoScan</span>
+    </a>
+    <!-- Language switcher on left panel -->
+    <div class="lang-switcher-slot"></div>
+  </div>
+
+  <div class="panel-inner">
+    <div class="panel-headline">
+      Welcome<br>
+      <span class="muted">Back to</span>
+      PotatoScan
+    </div>
+    <p class="panel-desc" data-i18n="login.panel.desc">Sign in to access your dashboard, view past diagnoses, and protect your potato crops with AI precision.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">97.4%</div><div class="stat-lbl" data-i18n="login.stat.accuracy">Accuracy</div></div>
+      <div class="stat"><div class="stat-num">&lt;2s</div><div class="stat-lbl" data-i18n="login.stat.analysis">Analysis</div></div>
+      <div class="stat"><div class="stat-num">50K+</div><div class="stat-lbl" data-i18n="login.stat.scans">Scans Done</div></div>
+    </div>
+  </div>
+
+  <div></div><!-- spacer -->
+</div>
+
+<!-- ══ RIGHT PANEL ══ -->
+<div class="right-panel">
+  <!-- Language switcher (mobile / right panel) -->
+  <div class="right-top"><div class="lang-switcher-slot"></div></div>
+
+  <div class="form-box">
+    <!-- Success -->
+    <div class="success-overlay" id="successScreen">
+      <div class="success-circle">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">
+        <span data-i18n="login.success.title1">You're</span><br>
+        <span data-i18n="login.success.title2">In!</span>
+      </div>
+      <p class="success-desc" data-i18n="login.success.desc">Welcome back. Redirecting you to your dashboard.</p>
+      <button class="goto-btn" onclick="window.location.href='/home'">
+        <span data-i18n="login.success.btn">Go to Dashboard</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+      <div class="form-eyebrow"><div class="eyebrow-line"></div><span data-i18n="login.eyebrow">Sign In</span></div>
+      <div class="form-title">
+        <span data-i18n="login.title1">Hello,</span>
+        <span class="green" data-i18n="login.title2">Again</span>
+      </div>
+      <p class="form-sub">
+        <span data-i18n="login.sub">Don't have an account?</span>
+        <a href="/signup" data-i18n="login.sub.link"> Create one free →</a>
+      </p>
+
+      <div class="error-banner" id="errBanner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="bannerMsg"></span>
+      </div>
+
+      <form id="theForm" novalidate>
+        <!-- Email -->
+        <div class="field-group" id="fg-email">
+          <div class="field-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span data-i18n="login.email.label">Email Address</span>
+          </div>
+          <div class="input-wrap">
+            <span class="i-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <input type="email" id="emailInput" data-i18n-ph="login.email.placeholder" placeholder="you@example.com" autocomplete="email">
+            <span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="err-msg" id="emailErr" data-i18n="login.err.email">Please enter a valid email address</div>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group" id="fg-pass">
+          <div class="field-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span data-i18n="login.pass.label">Password</span>
+          </div>
+          <div class="input-wrap">
+            <span class="i-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input type="password" id="passInput" data-i18n-ph="login.pass.placeholder" placeholder="Enter your password" autocomplete="current-password">
+            <button type="button" class="pw-toggle-btn" id="eyeBtn">
+              <svg id="eyeSvg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <a href="#" class="forgot-link" data-i18n="login.forgot">Forgot password?</a>
+          <div class="err-msg" id="passErr" data-i18n="login.err.pass">Password must be at least 6 characters</div>
+        </div>
+
+        <div class="remember-row">
+          <input type="checkbox" id="rememberMe">
+          <label for="rememberMe" class="check-box"></label>
+          <label for="rememberMe" class="remember-label" data-i18n="login.remember">Remember me for 30 days</label>
+        </div>
+
+        <button type="submit" class="signin-btn" id="signInBtn">
+          <div class="btn-inner">
+            <div class="btn-spinner" id="btnSpinner"></div>
+            <span id="btnText" data-i18n="login.btn">Sign In →</span>
+          </div>
+        </button>
+      </form>
+
+      <div class="or-divider"><div class="or-line"></div><span class="or-text" data-i18n="login.or">or continue with</span><div class="or-line"></div></div>
+
+      <a href="/auth/google" class="social-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        <span data-i18n="login.google">Continue with Google</span>
+      </a>
+
+      <div class="or-divider" style="margin-top:16px"><div class="or-line"></div><span class="or-text" data-i18n="login.or.trial">or try for free</span><div class="or-line"></div></div>
+
+      <button type="button" class="trial-btn" onclick="openTrial()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span data-i18n="login.trial.btn">Try Without Account</span>
+      </button>
+      <p class="trial-hint" data-i18n="login.trial.hint">No sign-up · Just name &amp; phone · 3 free scans</p>
+    </div>
+  </div>
+</div>
+
+<script src="/js/i18n.js"></script>
+<script>
+  // ── Cursor ──
+  const cur=document.getElementById('cur'),curRing=document.getElementById('curRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function loop(){rx+=(mx-rx)*0.13;ry+=(my-ry)*0.13;curRing.style.left=rx+'px';curRing.style.top=ry+'px';requestAnimationFrame(loop);})();
+  document.querySelectorAll('input,button,a,label').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.classList.add('big');curRing.classList.add('big');});
+    el.addEventListener('mouseleave',()=>{cur.classList.remove('big');curRing.classList.remove('big');});
+  });
+
+  // ── Mini Leaves ──
+  const ml=document.getElementById('miniLeaves');
+  for(let i=0;i<12;i++){const l=document.createElement('div');l.className='mini-leaf';l.style.cssText=`left:${8+Math.random()*84}%;bottom:0;animation-duration:${9+Math.random()*13}s;animation-delay:${Math.random()*16}s;`;const s=12+Math.random()*14;l.innerHTML=`<svg width="${s}" height="${s*1.3}" viewBox="0 0 24 30" fill="none"><path d="M12 2C8 8 4 15 6 21C8 27 16 28 19 22C22 16 18 6 12 2Z" fill="white"/></svg>`;ml.appendChild(l);}
+
+  // ── Trial ──
+  function openTrial(){document.getElementById('trialOverlay').classList.add('open');}
+  function closeTrial(){document.getElementById('trialOverlay').classList.remove('open');}
+  document.getElementById('trialOverlay').addEventListener('click',function(e){if(e.target===this)closeTrial();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTrial();});
+
+  document.getElementById('trialForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    const name=document.getElementById('trialName').value.trim();
+    const phone=document.getElementById('trialPhone').value.replace(/\s/g,'');
+    let ok=true;
+    const fgN=document.getElementById('fg-trialname'),fgP=document.getElementById('fg-trialphone');
+    fgN.classList.remove('valid','error');fgP.classList.remove('valid','error');
+    if(name.length<2){fgN.classList.add('error');ok=false;}else fgN.classList.add('valid');
+    if(!/^\d{10}$/.test(phone)){fgP.classList.add('error');ok=false;}else fgP.classList.add('valid');
+    if(!ok)return;
+    const btn=document.getElementById('trialSubmitBtn'),spinner=document.getElementById('trialSpinner'),txt=document.getElementById('trialBtnText');
+    btn.disabled=true;spinner.style.display='block';txt.textContent=i18n.t('trial.btn.loading');
+    const form=document.createElement('form');form.method='POST';form.action='/trial';
+    form.innerHTML=`<input name="trialname" value="${encodeURIComponent(name)}"><input name="trialphone" value="${encodeURIComponent(phone)}">`;
+    document.body.appendChild(form);form.submit();
+  });
+
+  // ── Password toggle ──
+  document.getElementById('eyeBtn').addEventListener('click',()=>{
+    const p=document.getElementById('passInput');const show=p.type==='password';p.type=show?'text':'password';
+    document.getElementById('eyeSvg').innerHTML=show?'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>':'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  });
+
+  // ── Validation ──
+  const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function setField(id,ok,show){const fg=document.getElementById('fg-'+id);fg.classList.remove('valid','error');if(!show)return;fg.classList.add(ok?'valid':'error');}
+  document.getElementById('emailInput').addEventListener('input',function(){setField('email',emailRx.test(this.value),this.value.length>0);});
+  document.getElementById('passInput').addEventListener('input',function(){setField('pass',this.value.length>=6,this.value.length>0);});
+
+  // ── Login submit ──
+  document.getElementById('theForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=document.getElementById('emailInput').value,pass=document.getElementById('passInput').value;
+    let ok=true;
+    if(!emailRx.test(email)){setField('email',false,true);ok=false;}else setField('email',true,true);
+    if(pass.length<6){setField('pass',false,true);ok=false;}else setField('pass',true,true);
+    if(!ok){document.getElementById('errBanner').classList.add('show');document.getElementById('bannerMsg').textContent=i18n.t('login.err.fix');return;}
+    document.getElementById('errBanner').classList.remove('show');
+    const btn=document.getElementById('signInBtn'),spinner=document.getElementById('btnSpinner'),txt=document.getElementById('btnText');
+    btn.disabled=true;spinner.style.display='block';txt.textContent=i18n.t('login.btn.loading');
+    try{
+      const res=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`,redirect:'follow'});
+      if(res.ok&&res.url.includes('/home')){document.getElementById('loginForm').style.display='none';document.getElementById('successScreen').classList.add('show');setTimeout(()=>{window.location.href='/home';},1500);}
+      else{const msg=await res.text();document.getElementById('errBanner').classList.add('show');document.getElementById('bannerMsg').textContent=msg||i18n.t('login.err.invalid');btn.disabled=false;spinner.style.display='none';txt.textContent=i18n.t('login.btn');}
+    }catch(err){document.getElementById('errBanner').classList.add('show');document.getElementById('bannerMsg').textContent=i18n.t('login.err.network');btn.disabled=false;spinner.style.display='none';txt.textContent=i18n.t('login.btn');}
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="icon" href="image.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PotatoScan — Leaf Disease Detector</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&family=Space+Mono:wght@400;700&family=Noto+Sans+Devanagari:wght@300;400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --soil:#ffffff;--bark:#f0f7ee;--moss:#4a8c3f;--leaf:#5a9e4e;--lime:#3a7d32;
+    --sun:#e8c84a;--blight:#c0392b;--cream:#faf8f4;--fog:#5a6e52;
+    --text-dark:#1a2e16;--text-mid:#3a5233;--border:rgba(74,140,63,0.25);--glow:rgba(74,140,63,0.12);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background-color:var(--soil);color:var(--text-dark);font-family:'DM Sans','Noto Sans Devanagari','Noto Sans Bengali',sans-serif;overflow-x:hidden;cursor:none;}
+
+  /* Cursor */
+  .cursor{width:12px;height:12px;background:var(--moss);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform 0.15s ease,background 0.2s;}
+  .cursor-ring{width:36px;height:36px;border:1.5px solid var(--moss);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:all 0.35s cubic-bezier(0.23,1,0.32,1);opacity:0.5;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:100;opacity:0.35;}
+
+  /* Language Switcher */
+  .lang-switcher{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,0.8);border:1px solid rgba(74,140,63,0.2);border-radius:20px;padding:4px;backdrop-filter:blur(10px);}
+  .lang-btn{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;padding:5px 10px;border-radius:14px;border:none;background:transparent;color:var(--text-mid);cursor:pointer;transition:all 0.25s ease;}
+  .lang-btn.active,.lang-btn:hover{background:var(--moss);color:#fff;}
+
+  /* Nav */
+  .top-nav{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:20px 40px;z-index:500;pointer-events:none;}
+  .top-nav>*{pointer-events:all;}
+  .nav-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--moss);letter-spacing:0.1em;text-decoration:none;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+
+  .user-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.75);border:1px solid rgba(74,140,63,0.2);padding:7px 14px;border-radius:20px;font-size:12px;color:var(--text-mid);font-weight:300;backdrop-filter:blur(10px);animation:fadeSlideUp 0.8s ease both;}
+  .user-avatar{width:22px;height:22px;border-radius:50%;background:rgba(74,140,63,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--moss);font-family:'Space Mono',monospace;font-weight:700;flex-shrink:0;}
+
+  .logout-btn{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.6);border:1.5px solid rgba(74,140,63,0.35);color:var(--moss);padding:8px 18px;border-radius:20px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.08em;text-decoration:none;text-transform:uppercase;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);backdrop-filter:blur(10px);animation:fadeSlideUp 0.8s ease 0.1s both;cursor:none;}
+  .logout-btn:hover{border-color:var(--moss);background:rgba(255,255,255,0.9);transform:translateY(-1px);box-shadow:0 4px 16px rgba(74,140,63,0.18);}
+  .logout-btn svg{width:12px;height:12px;stroke:var(--moss);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+
+  /* Hero */
+  .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden;}
+  .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 80% 40%,rgba(144,208,120,0.25) 0%,transparent 70%),radial-gradient(ellipse 50% 80% at 10% 80%,rgba(220,240,210,0.5) 0%,transparent 60%),linear-gradient(160deg,#f0f7ee 0%,#ffffff 60%,#e8f4e4 100%);}
+  .leaf-particle{position:absolute;opacity:0;animation:floatLeaf linear infinite;pointer-events:none;}
+  .leaf-particle svg{filter:drop-shadow(0 4px 12px rgba(107,156,94,0.4));}
+  @keyframes floatLeaf{0%{opacity:0;transform:translateY(110vh) rotate(0deg) scale(0.6);}10%{opacity:0.7;}90%{opacity:0.5;}100%{opacity:0;transform:translateY(-20vh) rotate(360deg) scale(1);}}
+
+  .hero-left{display:flex;flex-direction:column;justify-content:center;padding:80px 60px 80px 80px;position:relative;z-index:2;}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(74,140,63,0.1);border:1px solid rgba(74,140,63,0.3);padding:6px 14px;border-radius:20px;font-family:'Space Mono',monospace;font-size:11px;color:var(--moss);letter-spacing:0.08em;width:fit-content;margin-bottom:28px;animation:fadeSlideUp 0.8s ease both;}
+  .badge-dot{width:6px;height:6px;background:var(--moss);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:0.6;}}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,8vw,110px);line-height:0.92;letter-spacing:0.02em;animation:fadeSlideUp 0.9s ease 0.1s both;color:var(--text-dark);}
+  h1 .accent{color:var(--moss);display:block;}
+  h1 .sub{font-size:0.55em;color:var(--text-mid);display:block;letter-spacing:0.06em;}
+  .hero-desc{margin-top:28px;font-size:16px;line-height:1.7;color:var(--text-mid);max-width:400px;font-weight:300;animation:fadeSlideUp 1s ease 0.2s both;}
+  .hero-stats{display:flex;gap:32px;margin-top:40px;animation:fadeSlideUp 1s ease 0.3s both;}
+  .stat{text-align:left;}
+  .stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--moss);line-height:1;}
+  .stat-label{font-size:11px;color:var(--fog);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;}
+
+  /* Upload Card */
+  .hero-right{display:flex;align-items:center;justify-content:center;padding:80px 80px 80px 40px;position:relative;z-index:2;}
+  .upload-card{width:100%;max-width:440px;background:rgba(255,255,255,0.85);border:1px solid rgba(74,140,63,0.2);border-radius:24px;padding:40px;backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(74,140,63,0.12),0 2px 8px rgba(0,0,0,0.06);animation:fadeSlideUp 1s ease 0.4s both,cardGlow 4s ease 1.5s infinite;position:relative;overflow:hidden;}
+  .upload-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(144,208,120,0.08) 0%,transparent 60%);pointer-events:none;}
+  @keyframes cardGlow{0%,100%{box-shadow:0 8px 40px rgba(74,140,63,0.10),0 2px 8px rgba(0,0,0,0.05);}50%{box-shadow:0 8px 40px rgba(74,140,63,0.22),0 2px 8px rgba(0,0,0,0.05);}}
+  .upload-title{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--moss);text-transform:uppercase;margin-bottom:20px;}
+  .drop-zone{border:2px dashed rgba(74,140,63,0.35);border-radius:16px;padding:48px 32px;text-align:center;cursor:pointer;transition:all 0.4s cubic-bezier(0.23,1,0.32,1);position:relative;overflow:hidden;background:rgba(240,247,238,0.5);}
+  .drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(74,140,63,0.08) 0%,transparent 70%);opacity:0;transition:opacity 0.4s;}
+  .drop-zone:hover::before,.drop-zone.drag-over::before{opacity:1;}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--moss);transform:scale(1.01);background:rgba(220,240,210,0.4);}
+  .drop-zone.drag-over{background:rgba(144,208,120,0.12);animation:borderPulse 1s infinite;}
+  @keyframes borderPulse{0%,100%{border-color:var(--moss);}50%{border-color:rgba(74,140,63,0.4);}}
+  .drop-icon{width:64px;height:64px;margin:0 auto 16px;background:rgba(74,140,63,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.4s ease;}
+  .drop-zone:hover .drop-icon{background:rgba(74,140,63,0.18);transform:translateY(-4px);}
+  .drop-main{font-size:15px;font-weight:600;color:var(--text-dark);margin-bottom:6px;}
+  .drop-sub{font-size:12px;color:var(--text-mid);font-weight:300;}
+  .drop-formats{margin-top:12px;display:flex;justify-content:center;gap:8px;}
+  .fmt-tag{background:rgba(74,140,63,0.1);padding:3px 10px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;color:var(--moss);border:1px solid rgba(74,140,63,0.2);}
+
+  .preview-area{display:none;margin-top:20px;border-radius:12px;overflow:hidden;position:relative;animation:revealPreview 0.6s cubic-bezier(0.23,1,0.32,1);}
+  @keyframes revealPreview{from{opacity:0;transform:translateY(12px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .preview-area img{width:100%;height:200px;object-fit:cover;display:block;}
+  .preview-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.55));padding:16px;font-size:12px;color:#fff;font-family:'Space Mono',monospace;}
+  .change-link{display:block;margin-top:8px;text-align:right;font-size:11px;font-family:'Space Mono',monospace;color:var(--moss);cursor:pointer;text-decoration:underline;}
+  .change-link:hover{color:var(--lime);}
+
+  .analyze-btn{display:none;width:100%;margin-top:20px;padding:16px;background:var(--moss);color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.06em;cursor:pointer;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);position:relative;overflow:hidden;}
+  .analyze-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);transform:translateX(-100%);transition:transform 0.6s ease;}
+  .analyze-btn:hover::before{transform:translateX(100%);}
+  .analyze-btn:hover{background:#2e6626;transform:translateY(-2px);box-shadow:0 12px 32px rgba(74,140,63,0.35);}
+  .analyze-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+  .loading-overlay{display:none;position:absolute;inset:0;background:rgba(250,248,244,0.88);border-radius:24px;flex-direction:column;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(4px);}
+  .loading-overlay.active{display:flex;}
+  .spinner{width:56px;height:56px;border:3px solid rgba(74,140,63,0.2);border-top-color:var(--moss);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{margin-top:16px;font-family:'Space Mono',monospace;font-size:12px;color:var(--moss);letter-spacing:0.1em;}
+  .error-msg-upload{display:none;margin-top:16px;padding:12px 14px;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);border-radius:10px;font-size:13px;color:var(--blight);font-family:'Space Mono',monospace;}
+
+  /* Diseases */
+  .diseases-section{padding:120px 80px;position:relative;overflow:hidden;background:var(--cream);}
+  .diseases-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,140,63,0.3),transparent);}
+  .section-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.15em;color:var(--moss);text-transform:uppercase;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all 0.7s ease;}
+  .section-eyebrow.visible{opacity:1;transform:translateY(0);}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);line-height:0.95;color:var(--text-dark);margin-bottom:60px;opacity:0;transform:translateY(30px);transition:all 0.8s ease 0.1s;}
+  .section-title.visible{opacity:1;transform:translateY(0);}
+  .disease-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .disease-card{background:#fff;border:1px solid rgba(74,140,63,0.15);border-radius:20px;padding:32px;cursor:pointer;transition:all 0.4s cubic-bezier(0.23,1,0.32,1);position:relative;overflow:hidden;opacity:0;transform:translateY(40px);box-shadow:0 2px 16px rgba(74,140,63,0.06);}
+  .disease-card.visible{opacity:1;transform:translateY(0);}
+  .disease-card:hover{border-color:var(--leaf);transform:translateY(-8px);box-shadow:0 20px 50px rgba(74,140,63,0.15);}
+  .disease-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--moss);transform:scaleX(0);transform-origin:left;transition:transform 0.4s ease;}
+  .disease-card:hover::after{transform:scaleX(1);}
+  .card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
+  .card-icon.green{background:rgba(107,156,94,0.2);}.card-icon.red{background:rgba(212,82,42,0.2);}.card-icon.yellow{background:rgba(232,200,74,0.2);}
+  .card-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.04em;margin-bottom:10px;color:var(--text-dark);}
+  .card-desc{font-size:13px;line-height:1.65;color:var(--text-mid);font-weight:300;}
+  .card-severity{margin-top:20px;display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--text-mid);text-transform:uppercase;}
+  .severity-dots{display:flex;gap:3px;}
+  .severity-dot{width:6px;height:6px;border-radius:50%;background:rgba(74,140,63,0.15);}
+  .severity-dot.active{background:var(--blight);}.severity-dot.medium{background:var(--sun);}.severity-dot.low{background:var(--moss);}
+
+  /* How It Works */
+  .how-section{padding:120px 80px;background:#f0f7ee;position:relative;}
+  .how-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,140,63,0.25),transparent);}
+  .steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:60px;position:relative;}
+  .steps-grid::before{content:'';position:absolute;top:32px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,rgba(74,140,63,0.2),rgba(74,140,63,0.5),rgba(74,140,63,0.2));z-index:0;}
+  .step{text-align:center;padding:0 24px;position:relative;z-index:1;opacity:0;transform:translateY(30px);transition:all 0.7s ease;}
+  .step.visible{opacity:1;transform:translateY(0);}
+  .step-num{width:64px;height:64px;background:#fff;border:2px solid rgba(74,140,63,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--moss);transition:all 0.4s ease;box-shadow:0 2px 12px rgba(74,140,63,0.1);}
+  .step:hover .step-num{background:rgba(74,140,63,0.08);border-color:var(--moss);transform:scale(1.1);}
+  .step-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.04em;color:var(--text-dark);margin-bottom:10px;}
+  .step-desc{font-size:13px;color:var(--text-mid);line-height:1.6;font-weight:300;}
+
+  footer{padding:60px 80px;border-top:1px solid rgba(74,140,63,0.15);display:flex;justify-content:space-between;align-items:center;background:#fff;}
+  .footer-brand{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--moss);letter-spacing:0.08em;}
+  .footer-note{font-size:12px;color:var(--text-mid);font-weight:300;}
+
+  @keyframes fadeSlideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr;}
+    .hero-right{padding:40px;}
+    .hero-left{padding:80px 40px 40px;}
+    .disease-grid{grid-template-columns:1fr;}
+    .steps-grid{grid-template-columns:1fr 1fr;gap:40px;}
+    .steps-grid::before{display:none;}
+    .diseases-section,.how-section{padding:80px 40px;}
+    footer{flex-direction:column;gap:16px;text-align:center;}
+    .top-nav{padding:16px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div id="particles"></div>
+
+<!-- ══ NAV ══ -->
+<nav class="top-nav">
+  <a href="/home" class="nav-brand">PotatoScan</a>
+  <div class="nav-right">
+    <!-- Language Switcher in nav -->
+    <div class="lang-switcher-slot"></div>
+
+    <div class="user-pill">
+      <div class="user-avatar"><%= user.firstname.charAt(0).toUpperCase() %></div>
+      <span class="user-name">
+        <%= user.firstname %>
+        <% if (!user.isTrial) { %><%= user.lastname %><% } %>
+        <% if (user.isTrial) { %>
+          <span id="trialBadge" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--moss);margin-left:4px;letter-spacing:0.08em" data-i18n="home.trial.badge">TRIAL</span>
+        <% } %>
+      </span>
+    </div>
+
+    <a href="/logout" class="logout-btn">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span data-i18n="home.nav.logout">Logout</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-left">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      <span data-i18n="home.badge">AI-Powered Diagnosis</span>
+    </div>
+    <h1>
+      <span data-i18n="home.hero.title1">Potato</span>
+      <span class="accent" data-i18n="home.hero.title2">Leaf</span>
+      <span class="sub" data-i18n="home.hero.title3">Disease Scanner</span>
+    </h1>
+    <p class="hero-desc" data-i18n="home.hero.desc">Upload a photo of your potato leaf and our deep-learning model identifies diseases instantly — protecting your harvest before damage spreads.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">97.4%</div><div class="stat-label" data-i18n="home.stat.accuracy">Accuracy</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label" data-i18n="home.stat.diseases">Diseases Detected</div></div>
+      <div class="stat"><div class="stat-num">&lt;2s</div><div class="stat-label" data-i18n="home.stat.time">Analysis Time</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="upload-card" id="uploadCard">
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText" data-i18n="home.loading.1">SCANNING LEAF…</div>
+      </div>
+
+      <div class="upload-title" data-i18n="home.upload.title">// UPLOAD LEAF IMAGE</div>
+
+      <form id="analyzeForm" action="/analyze" method="POST" enctype="multipart/form-data">
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--lime)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="drop-main" data-i18n="home.drop.main">Drop leaf image here</div>
+          <div class="drop-sub" data-i18n="home.drop.sub">or click to browse files</div>
+          <div class="drop-formats"><span class="fmt-tag">JPG</span><span class="fmt-tag">PNG</span><span class="fmt-tag">WEBP</span></div>
+        </div>
+
+        <input type="file" id="fileInput" name="leafImage" accept="image/jpeg,image/png,image/webp" style="display:none" required>
+
+        <div class="preview-area" id="previewArea">
+          <img id="previewImg" src="" alt="Leaf preview">
+          <div class="preview-overlay" id="previewLabel"></div>
+        </div>
+        <span class="change-link" id="changeLink" style="display:none" data-i18n="home.change.img">✕ Change image</span>
+
+        <div class="error-msg-upload" id="errorMsg"></div>
+
+        <button type="submit" class="analyze-btn" id="analyzeBtn" data-i18n="home.analyze.btn">⬡ Analyze Leaf</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DISEASES ══ -->
+<section class="diseases-section">
+  <div class="section-eyebrow scroll-reveal" data-i18n="home.detect.eyebrow">Detectable Conditions</div>
+  <div class="section-title scroll-reveal">
+    <span data-i18n="home.detect.title1">What We</span><br>
+    <span data-i18n="home.detect.title2">Detect</span>
+  </div>
+  <div class="disease-grid">
+    <div class="disease-card scroll-reveal" style="transition-delay:0.1s">
+      <div class="card-icon green">🌿</div>
+      <div class="card-title" data-i18n="home.card1.title">Healthy Leaf</div>
+      <div class="card-desc" data-i18n="home.card1.desc">No infection detected. Leaf structure, color, and tissue are within normal parameters. Continue standard care routine.</div>
+      <div class="card-severity"><span data-i18n="home.card1.threat">Threat Level</span><div class="severity-dots"><div class="severity-dot low active"></div><div class="severity-dot"></div><div class="severity-dot"></div></div></div>
+    </div>
+    <div class="disease-card scroll-reveal" style="transition-delay:0.2s">
+      <div class="card-icon red">🦠</div>
+      <div class="card-title" data-i18n="home.card2.title">Early Blight</div>
+      <div class="card-desc" data-i18n="home.card2.desc">Caused by Alternaria solani. Characterized by dark circular spots with concentric rings. Spreads rapidly in warm, humid conditions.</div>
+      <div class="card-severity"><span data-i18n="home.card1.threat">Threat Level</span><div class="severity-dots"><div class="severity-dot active"></div><div class="severity-dot medium active"></div><div class="severity-dot"></div></div></div>
+    </div>
+    <div class="disease-card scroll-reveal" style="transition-delay:0.3s">
+      <div class="card-icon yellow">⚠️</div>
+      <div class="card-title" data-i18n="home.card3.title">Late Blight</div>
+      <div class="card-desc" data-i18n="home.card3.desc">Caused by Phytophthora infestans. Water-soaked lesions rapidly turning brown. The fungus behind the Irish Potato Famine.</div>
+      <div class="card-severity"><span data-i18n="home.card1.threat">Threat Level</span><div class="severity-dots"><div class="severity-dot active"></div><div class="severity-dot active"></div><div class="severity-dot active" style="background:var(--blight)"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section class="how-section">
+  <div class="section-eyebrow scroll-reveal" data-i18n="home.how.eyebrow">Process</div>
+  <div class="section-title scroll-reveal">
+    <span data-i18n="home.how.title1">How It</span><br>
+    <span data-i18n="home.how.title2">Works</span>
+  </div>
+  <div class="steps-grid">
+    <div class="step scroll-reveal" style="transition-delay:0s">
+      <div class="step-num">01</div>
+      <div class="step-title" data-i18n="home.step1.title">Capture</div>
+      <div class="step-desc" data-i18n="home.step1.desc">Photograph the potato leaf clearly in natural light. Close-up shots work best.</div>
+    </div>
+    <div class="step scroll-reveal" style="transition-delay:0.15s">
+      <div class="step-num">02</div>
+      <div class="step-title" data-i18n="home.step2.title">Upload</div>
+      <div class="step-desc" data-i18n="home.step2.desc">Drag & drop or browse to upload. We accept JPG, PNG, and WEBP formats.</div>
+    </div>
+    <div class="step scroll-reveal" style="transition-delay:0.3s">
+      <div class="step-num">03</div>
+      <div class="step-title" data-i18n="home.step3.title">Analyze</div>
+      <div class="step-desc" data-i18n="home.step3.desc">Our CNN model processes the image against thousands of trained leaf samples.</div>
+    </div>
+    <div class="step scroll-reveal" style="transition-delay:0.45s">
+      <div class="step-num">04</div>
+      <div class="step-title" data-i18n="home.step4.title">Diagnose</div>
+      <div class="step-desc" data-i18n="home.step4.desc">Receive instant diagnosis with confidence score and treatment recommendation.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">PotatoScan</div>
+  <div class="footer-note" data-i18n="home.footer.powered">Powered by DebIsh</div>
+</footer>
+
+<script src="/js/i18n.js"></script>
+<script>
+  // ── Cursor ──
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-6+'px';cursor.style.top=my-6+'px';});
+  (function animateRing(){rx+=(mx-rx-18)*0.12;ry+=(my-ry-18)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animateRing);})();
+  document.querySelectorAll('button,.drop-zone,.disease-card,.step,.logout-btn').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.style.transform='scale(2.5)');el.addEventListener('mouseleave',()=>cursor.style.transform='scale(1)');});
+
+  // ── Leaf Particles ──
+  const pContainer=document.getElementById('particles');
+  const leafSVGs=[`<svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4C10 4 4 10 4 16C4 22 10 28 16 28C22 28 28 22 28 16C18 16 16 4 16 4Z" fill="#6b9c5e" opacity="0.6"/></svg>`,`<svg width="24" height="28" viewBox="0 0 24 28" fill="none"><path d="M12 2C6 8 2 14 4 20C6 26 18 28 22 22C26 16 22 4 12 2Z" fill="#4a6741" opacity="0.5"/></svg>`];
+  for(let i=0;i<14;i++){const p=document.createElement('div');p.className='leaf-particle';p.style.cssText=`left:${Math.random()*100}vw;animation-duration:${12+Math.random()*16}s;animation-delay:${Math.random()*20}s;width:${20+Math.random()*20}px;position:fixed;z-index:1;pointer-events:none`;p.innerHTML=leafSVGs[Math.floor(Math.random()*leafSVGs.length)];pContainer.appendChild(p);}
+
+  // ── Scroll Reveal ──
+  const revealObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.15});
+  document.querySelectorAll('.scroll-reveal').forEach(el=>revealObs.observe(el));
+
+  // ── Upload & Preview ──
+  const dropZone=document.getElementById('dropZone'),fileInput=document.getElementById('fileInput'),
+        previewArea=document.getElementById('previewArea'),previewImg=document.getElementById('previewImg'),
+        previewLabel=document.getElementById('previewLabel'),analyzeBtn=document.getElementById('analyzeBtn'),
+        changeLink=document.getElementById('changeLink'),errorMsg=document.getElementById('errorMsg'),
+        loadingOverlay=document.getElementById('loadingOverlay'),loadingText=document.getElementById('loadingText'),
+        analyzeForm=document.getElementById('analyzeForm');
+
+  dropZone.addEventListener('click',()=>fileInput.click());
+  dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+  dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');const file=e.dataTransfer.files[0];if(file&&file.type.startsWith('image/')){const dt=new DataTransfer();dt.items.add(file);fileInput.files=dt.files;showPreview(file);}});
+  fileInput.addEventListener('change',()=>{if(fileInput.files[0])showPreview(fileInput.files[0]);});
+
+  function showPreview(file){
+    const reader=new FileReader();
+    reader.onload=e=>{previewImg.src=e.target.result;previewLabel.textContent='📁 '+file.name+' ('+(file.size/1024).toFixed(0)+' KB)';previewArea.style.display='block';changeLink.style.display='block';analyzeBtn.style.display='block';dropZone.style.display='none';errorMsg.style.display='none';};
+    reader.readAsDataURL(file);
+  }
+
+  changeLink.addEventListener('click',()=>{fileInput.value='';previewArea.style.display='none';changeLink.style.display='none';analyzeBtn.style.display='none';dropZone.style.display='block';errorMsg.style.display='none';});
+
+  // i18n-aware loading messages
+  let msgIdx=0,msgInterval;
+  function getLoadingMessages(){return[i18n.t('home.loading.1'),i18n.t('home.loading.2'),i18n.t('home.loading.3'),i18n.t('home.loading.4')];}
+
+  analyzeForm.addEventListener('submit',e=>{
+    if(!fileInput.files[0]){e.preventDefault();errorMsg.textContent=i18n.t('home.no.image.err');errorMsg.style.display='block';return;}
+    loadingOverlay.classList.add('active');analyzeBtn.disabled=true;
+    const msgs=getLoadingMessages();loadingText.textContent=msgs[0];
+    msgInterval=setInterval(()=>{msgIdx=(msgIdx+1)%msgs.length;loadingText.textContent=msgs[msgIdx];},700);
+  });
+</script>
+</body>
+</html>

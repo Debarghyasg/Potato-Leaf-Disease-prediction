@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="icon" href="image.png">
+<title>PotatoScan — Create Account</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&family=Noto+Sans+Devanagari:wght@300;400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:#ffffff;--cream:#faf8f4;--moss:#3a7d32;--moss-light:#4a8c3f;--leaf:#5a9e4e;
+    --leaf-pale:#e8f4e4;--leaf-mist:#f0f9ed;--text-dark:#1a2e16;--text-mid:#3a5233;
+    --text-soft:#6a8265;--border:rgba(74,140,63,0.2);--error:#c0392b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{min-height:100vh;background:var(--cream);font-family:'DM Sans','Noto Sans Devanagari','Noto Sans Bengali',sans-serif;display:flex;overflow-x:hidden;cursor:none;}
+  .cursor{width:10px;height:10px;background:var(--moss);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform 0.15s ease;transform:translate(-50%,-50%);}
+  .cursor-ring{width:32px;height:32px;border:1.5px solid var(--moss);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;opacity:0.45;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);transform:translate(-50%,-50%);}
+  .cursor.hovered{transform:translate(-50%,-50%) scale(2.2);}
+  .cursor-ring.hovered{opacity:0.2;transform:translate(-50%,-50%) scale(1.4);}
+
+  /* Language Switcher */
+  .lang-switcher{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:4px;backdrop-filter:blur(8px);}
+  .lang-btn{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;padding:5px 10px;border-radius:14px;border:none;background:transparent;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.25s ease;}
+  .lang-btn.active,.lang-btn:hover{background:rgba(255,255,255,0.25);color:#fff;}
+  .lang-btn.active{background:rgba(255,255,255,0.3);}
+
+  /* Left Panel */
+  .left-panel{width:42%;min-height:100vh;background:linear-gradient(160deg,#2e6626 0%,#3a7d32 40%,#4a9e40 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:44px 52px;flex-shrink:0;}
+  .left-panel::before{content:'';position:absolute;width:480px;height:480px;border:1px solid rgba(255,255,255,0.1);border-radius:50%;top:-120px;right:-160px;}
+  .left-panel::after{content:'';position:absolute;width:300px;height:300px;border:1px solid rgba(255,255,255,0.08);border-radius:50%;bottom:-60px;left:-80px;}
+  .panel-circle-mid{position:absolute;width:200px;height:200px;border:1px solid rgba(255,255,255,0.07);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+  .leaf-cluster{position:absolute;right:-20px;top:50%;transform:translateY(-50%);opacity:0.12;}
+  .panel-leaf{position:absolute;pointer-events:none;opacity:0;animation:floatUp linear infinite;}
+  @keyframes floatUp{0%{opacity:0;transform:translateY(60px) rotate(0deg);}15%{opacity:0.18;}85%{opacity:0.12;}100%{opacity:0;transform:translateY(-300px) rotate(180deg);}}
+
+  .left-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;}
+  .panel-brand{position:relative;z-index:2;}
+  .brand-name{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:0.1em;color:#fff;display:flex;align-items:center;gap:10px;}
+  .brand-icon{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .brand-tagline{font-size:12px;color:rgba(255,255,255,0.6);font-weight:300;margin-top:5px;letter-spacing:0.04em;}
+  .panel-hero{position:relative;z-index:2;}
+  .panel-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,3.5vw,58px);line-height:0.95;color:#fff;letter-spacing:0.02em;margin-bottom:16px;}
+  .panel-headline span{color:rgba(255,255,255,0.5);display:block;font-size:0.65em;letter-spacing:0.08em;}
+  .panel-desc{font-size:13px;line-height:1.75;color:rgba(255,255,255,0.7);font-weight:300;max-width:300px;}
+  .panel-features{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;}
+  .feature-item{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.8);font-weight:300;}
+  .feature-dot{width:28px;height:28px;background:rgba(255,255,255,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+
+  /* Right Panel */
+  .right-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:44px 56px;background:var(--white);overflow-y:auto;position:relative;}
+  .right-panel::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 90% 10%,rgba(90,158,78,0.06) 0%,transparent 50%),radial-gradient(circle at 10% 90%,rgba(168,217,108,0.06) 0%,transparent 50%);pointer-events:none;}
+  .right-top{position:absolute;top:20px;right:24px;z-index:10;}
+  .right-top .lang-switcher{background:rgba(58,125,50,0.07);border-color:rgba(58,125,50,0.2);}
+  .right-top .lang-btn{color:var(--text-soft);}
+  .right-top .lang-btn.active,.right-top .lang-btn:hover{background:var(--moss);color:#fff;}
+
+  .form-container{width:100%;max-width:520px;animation:fadeUp 0.8s cubic-bezier(0.23,1,0.32,1) both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+  .form-header{margin-bottom:28px;}
+  .form-eyebrow{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.16em;color:var(--moss);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .form-eyebrow::before{content:'';width:24px;height:1.5px;background:var(--moss);border-radius:1px;}
+  .form-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,4vw,54px);line-height:0.95;color:var(--text-dark);letter-spacing:0.02em;margin-bottom:10px;}
+  .form-title .green{color:var(--moss);}
+  .form-subtitle{font-size:14px;color:var(--text-soft);font-weight:300;line-height:1.6;}
+  .form-subtitle a{color:var(--moss);font-weight:500;text-decoration:none;border-bottom:1px solid rgba(58,125,50,0.3);transition:border-color 0.2s;}
+  .form-subtitle a:hover{border-color:var(--moss);}
+
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .field-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);display:flex;align-items:center;gap:6px;}
+  .field-label .req{color:var(--moss);font-size:14px;line-height:1;}
+  .input-wrap{position:relative;display:flex;align-items:center;}
+  .input-icon{position:absolute;left:14px;color:var(--text-soft);transition:color 0.25s;pointer-events:none;display:flex;align-items:center;}
+  .input-wrap input,.input-wrap select{width:100%;padding:13px 14px 13px 42px;border:1.5px solid var(--border);border-radius:12px;background:var(--leaf-mist);font-family:'DM Sans','Noto Sans Devanagari','Noto Sans Bengali',sans-serif;font-size:14px;color:var(--text-dark);transition:all 0.25s cubic-bezier(0.23,1,0.32,1);outline:none;appearance:none;cursor:text;}
+  .input-wrap input::placeholder{color:var(--text-soft);opacity:0.7;}
+  .input-wrap input:focus,.input-wrap select:focus{border-color:var(--moss);background:var(--white);box-shadow:0 0 0 3px rgba(58,125,50,0.1);}
+  .input-wrap:focus-within .input-icon{color:var(--moss);}
+  .pw-toggle{position:absolute;right:14px;background:none;border:none;cursor:pointer;color:var(--text-soft);padding:0;display:flex;align-items:center;transition:color 0.2s;}
+  .pw-toggle:hover{color:var(--moss);}
+
+  .pw-strength{display:flex;gap:4px;margin-top:6px;}
+  .pw-bar{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background 0.4s ease;}
+  .pw-bar.weak{background:#e74c3c;}.pw-bar.medium{background:#e8c84a;}.pw-bar.strong{background:var(--moss);}
+  .pw-label{font-size:11px;color:var(--text-soft);margin-top:4px;min-height:14px;font-family:'Space Mono',monospace;}
+
+  .phone-prefix{position:absolute;left:14px;font-size:13px;color:var(--text-mid);font-weight:500;pointer-events:none;display:flex;align-items:center;gap:4px;z-index:1;}
+  .phone-prefix span{color:var(--border);margin-left:4px;}
+  .phone-input{padding-left:58px !important;}
+
+  .field-group.valid .input-wrap input{border-color:rgba(58,125,50,0.5);background:#f4fbf2;}
+  .field-group.error .input-wrap input{border-color:rgba(192,57,43,0.5);background:#fff8f7;}
+  .check-icon{position:absolute;right:14px;color:var(--moss);opacity:0;transition:opacity 0.3s;pointer-events:none;}
+  .field-group.valid .check-icon{opacity:1;}
+  .error-msg{font-size:11px;color:var(--error);font-family:'Space Mono',monospace;opacity:0;transform:translateY(-4px);transition:all 0.25s ease;min-height:14px;}
+  .field-group.error .error-msg{opacity:1;transform:translateY(0);}
+
+  .form-progress{margin-bottom:24px;}
+  .progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px;font-family:'Space Mono',monospace;color:var(--text-soft);letter-spacing:0.06em;}
+  .progress-pct{color:var(--moss);font-weight:700;}
+  .progress-track{height:4px;background:var(--leaf-pale);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--leaf) 0%,var(--moss) 100%);border-radius:2px;width:0%;transition:width 0.5s cubic-bezier(0.23,1,0.32,1);}
+
+  .submit-btn{width:100%;padding:16px;background:var(--moss);color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;cursor:pointer;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);position:relative;overflow:hidden;margin-top:8px;}
+  .submit-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:translateX(-100%);transition:transform 0.55s ease;}
+  .submit-btn:hover::before{transform:translateX(100%);}
+  .submit-btn:hover{background:#2e6626;transform:translateY(-2px);box-shadow:0 12px 28px rgba(58,125,50,0.35);}
+  .submit-btn:disabled{background:#b0cca8;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  .terms-row{display:flex;align-items:flex-start;gap:10px;margin-top:16px;margin-bottom:4px;}
+  .custom-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:5px;background:var(--leaf-mist);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;margin-top:1px;}
+  #termsCheck{display:none;}
+  #termsCheck:checked+.custom-check{background:var(--moss);border-color:var(--moss);}
+  #termsCheck:checked+.custom-check::after{content:'';width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block;}
+  .terms-text{font-size:12px;color:var(--text-soft);line-height:1.6;}
+  .terms-text a{color:var(--moss);text-decoration:none;font-weight:500;}
+
+  .success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 0;animation:fadeUp 0.7s ease both;}
+  .success-icon{width:80px;height:80px;background:linear-gradient(135deg,var(--leaf),var(--moss));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 12px 32px rgba(58,125,50,0.3);animation:popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;}
+  @keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .success-title{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--text-dark);letter-spacing:0.04em;line-height:1;margin-bottom:12px;}
+  .success-msg{font-size:15px;color:var(--text-soft);line-height:1.7;max-width:320px;margin:0 auto 32px;font-weight:300;}
+  .success-btn{display:inline-block;padding:14px 36px;background:var(--moss);color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.08em;cursor:pointer;transition:all 0.3s ease;text-decoration:none;}
+  .success-btn:hover{background:#2e6626;transform:translateY(-2px);box-shadow:0 10px 24px rgba(58,125,50,0.3);}
+
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:20px 0;}
+
+  @media(max-width:860px){
+    body{flex-direction:column;}
+    .left-panel{width:100%;min-height:auto;padding:28px 24px;flex-direction:row;align-items:center;flex-wrap:wrap;gap:16px;}
+    .panel-hero,.panel-features{display:none;}
+    .right-panel{padding:36px 20px;}
+    .form-row{grid-template-columns:1fr;}
+    .right-top{top:12px;right:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ══ LEFT PANEL ══ -->
+<div class="left-panel">
+  <div class="panel-circle-mid"></div>
+  <div id="panelLeaves"></div>
+  <div class="leaf-cluster">
+    <svg width="260" height="340" viewBox="0 0 260 340" fill="none">
+      <path d="M130 20C80 60 40 120 60 180C80 240 160 280 200 240C240 200 220 100 130 20Z" fill="white" opacity="0.15"/>
+      <path d="M80 80C50 120 30 180 60 220C90 260 160 260 180 220C200 180 180 120 80 80Z" fill="white" opacity="0.1"/>
+    </svg>
+  </div>
+
+  <div class="left-top">
+    <div class="panel-brand">
+      <div class="brand-name"><div class="brand-icon">🌿</div>PotatoScan</div>
+      <div class="brand-tagline" data-i18n="signup.panel.tagline">AI-Powered Leaf Disease Detection</div>
+    </div>
+    <div class="lang-switcher-slot"></div>
+  </div>
+
+  <div class="panel-hero">
+    <div class="panel-headline">
+      <span data-i18n="signup.panel.headline1">Join The</span><br>
+      <span style="color:rgba(255,255,255,0.5);font-size:0.65em;letter-spacing:0.08em">Platform</span><br>
+      <span data-i18n="signup.panel.headline2">Future</span>
+    </div>
+    <p class="panel-desc" data-i18n="signup.panel.desc">Create your free account and start diagnosing potato leaf diseases with 97.4% accuracy.</p>
+  </div>
+
+  <div class="panel-features">
+    <div class="feature-item"><div class="feature-dot">🔬</div><span data-i18n="signup.feat1">AI-powered disease analysis in &lt;2 seconds</span></div>
+    <div class="feature-item"><div class="feature-dot">📊</div><span data-i18n="signup.feat2">Detailed reports with confidence scores</span></div>
+    <div class="feature-item"><div class="feature-dot">🔒</div><span data-i18n="signup.feat3">Secure &amp; private — your data stays yours</span></div>
+    <div class="feature-item"><div class="feature-dot">🌍</div><span data-i18n="signup.feat4">Available worldwide, any device</span></div>
+  </div>
+</div>
+
+<!-- ══ RIGHT PANEL ══ -->
+<div class="right-panel">
+  <div class="right-top"><div class="lang-switcher-slot"></div></div>
+  <div class="form-container">
+
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">
+        <span data-i18n="signup.success.title1">Welcome</span><br>
+        <span style="color:var(--moss)" data-i18n="signup.success.title2">Aboard!</span>
+      </div>
+      <p class="success-msg" data-i18n="signup.success.desc">Your account has been created. You're ready to start scanning.</p>
+      <a href="/" class="success-btn" onclick="resetForm()"><span data-i18n="signup.success.btn">Start Scanning →</span></a>
+    </div>
+
+    <!-- Form -->
+    <div id="mainForm">
+      <div class="form-header">
+        <div class="form-eyebrow" data-i18n="signup.eyebrow">New Account</div>
+        <div class="form-title">
+          <span data-i18n="signup.title1">Create Your</span><br>
+          <span class="green" data-i18n="signup.title2">Profile</span>
+        </div>
+        <p class="form-subtitle">
+          <span data-i18n="signup.sub">Already have an account?</span>
+          <a href="/"> <span data-i18n="signup.sub.link">Sign in here</span></a>
+        </p>
+      </div>
+
+      <div class="form-progress">
+        <div class="progress-label">
+          <span data-i18n="signup.progress.label">Profile Completion</span>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <form id="signupForm" action="/signup" method="POST" novalidate>
+
+        <div class="form-row">
+          <div class="field-group" id="fg-firstname">
+            <label class="field-label" for="firstname"><span data-i18n="signup.firstname.label">First Name</span> <span class="req">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <input type="text" id="firstname" name="firstname" data-i18n-ph="signup.firstname.ph" placeholder="e.g. Arjun" autocomplete="given-name">
+              <span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+            </div>
+            <div class="error-msg" data-i18n="signup.firstname.err">Please enter your first name</div>
+          </div>
+          <div class="field-group" id="fg-lastname">
+            <label class="field-label" for="lastname"><span data-i18n="signup.lastname.label">Last Name</span> <span class="req">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <input type="text" id="lastname" name="lastname" data-i18n-ph="signup.lastname.ph" placeholder="e.g. Sharma" autocomplete="family-name">
+              <span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+            </div>
+            <div class="error-msg" data-i18n="signup.lastname.err">Please enter your last name</div>
+          </div>
+        </div>
+
+        <div class="field-group" id="fg-email">
+          <label class="field-label" for="email"><span data-i18n="signup.email.label">Email Address</span> <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <input type="email" id="email" name="email" data-i18n-ph="signup.email.ph" placeholder="you@example.com" autocomplete="email">
+            <span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="error-msg" data-i18n="signup.email.err">Please enter a valid email address</div>
+        </div>
+
+        <div class="field-group" id="fg-password">
+          <label class="field-label" for="password"><span data-i18n="signup.pass.label">Password</span> <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input type="password" name="password" id="password" data-i18n-ph="signup.pass.ph" placeholder="Min. 8 characters" autocomplete="new-password">
+            <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePw()">
+              <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pw-strength"><div class="pw-bar" id="bar1"></div><div class="pw-bar" id="bar2"></div><div class="pw-bar" id="bar3"></div><div class="pw-bar" id="bar4"></div></div>
+          <div class="pw-label" id="pwLabel"></div>
+          <div class="error-msg" data-i18n="signup.pass.err">Password must be at least 8 characters</div>
+        </div>
+
+        <div class="field-group" id="fg-phone">
+          <label class="field-label" for="phone"><span data-i18n="signup.phone.label">Phone Number</span> <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="phone-prefix">🇮🇳 +91 <span>|</span></span>
+            <input type="tel" id="phone" name="phone" class="phone-input" data-i18n-ph="signup.phone.ph" placeholder="98765 43210" autocomplete="tel" maxlength="10">
+            <span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="error-msg" data-i18n="signup.phone.err">Enter a valid 10-digit phone number</div>
+        </div>
+
+        <div class="field-group" id="fg-location">
+          <label class="field-label" for="location"><span data-i18n="signup.location.label">Location / Region</span> <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <input type="text" id="location" name="location" data-i18n-ph="signup.location.ph" placeholder="e.g. West Bengal, India" autocomplete="address-level1">
+            <span class="check-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="error-msg" data-i18n="signup.location.err">Please enter your location</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="terms-row">
+          <input type="checkbox" name="terms_accepted" id="termsCheck">
+          <label for="termsCheck" class="custom-check"></label>
+          <p class="terms-text">
+            <span data-i18n="signup.terms">I agree to the</span>
+            <a href="#"><span data-i18n="signup.terms.tos">Terms of Service</span></a> &amp;
+            <a href="#"><span data-i18n="signup.terms.pp">Privacy Policy</span></a>.
+            <span data-i18n="signup.terms.note">I understand that my crop data may be used to improve the AI model anonymously.</span>
+          </p>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span data-i18n="signup.btn">Create My Account →</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/js/i18n.js"></script>
+<script>
+  // ── Cursor ──
+  const cur=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function a(){rx+=(mx-rx)*0.13;ry+=(my-ry)*0.13;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a);})();
+  document.querySelectorAll('input,button,a,label').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.classList.add('hovered');ring.classList.add('hovered');});el.addEventListener('mouseleave',()=>{cur.classList.remove('hovered');ring.classList.remove('hovered');});});
+
+  // ── Panel Leaves ──
+  const lv=document.getElementById('panelLeaves');
+  for(let i=0;i<10;i++){const l=document.createElement('div');l.className='panel-leaf';l.style.left=(10+Math.random()*80)+'%';l.style.bottom='0';l.style.animationDuration=(10+Math.random()*14)+'s';l.style.animationDelay=(Math.random()*14)+'s';l.innerHTML=`<svg width="${14+Math.random()*12}" height="${18+Math.random()*14}" viewBox="0 0 24 30" fill="none"><path d="M12 2C8 8 4 15 6 21C8 27 16 28 19 22C22 16 18 6 12 2Z" fill="white"/></svg>`;lv.appendChild(l);}
+
+  // ── Progress ──
+  const fields=['firstname','lastname','email','password','phone','location'];
+  function updateProgress(){const filled=fields.filter(id=>{const el=document.getElementById(id);return el&&el.value.trim().length>0;}).length;const pct=Math.round((filled/fields.length)*100);document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressPct').textContent=pct+'%';}
+
+  // ── Password Strength ──
+  const bars=['bar1','bar2','bar3','bar4'];
+  function checkStrength(pw){
+    let score=0;
+    if(pw.length>=8)score++;if(/[A-Z]/.test(pw))score++;if(/[0-9]/.test(pw))score++;if(/[^A-Za-z0-9]/.test(pw))score++;
+    const lblKeys=['','signup.pass.weak','signup.pass.moderate','signup.pass.strong','signup.pass.vstrong'];
+    const cls=['','weak','medium','strong','strong'];
+    bars.forEach((b,i)=>{const el=document.getElementById(b);el.className='pw-bar';if(i<score)el.classList.add(cls[score]);});
+    const lbl=document.getElementById('pwLabel');
+    lbl.textContent=pw.length>0?i18n.t(lblKeys[score]):'';
+    lbl.style.color=score<=1?'#e74c3c':score===2?'#e8a030':'var(--moss)';
+  }
+
+  // ── Validation ──
+  const validators={firstname:v=>v.trim().length>=2,lastname:v=>v.trim().length>=2,email:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),password:v=>v.length>=8,phone:v=>/^\d{10}$/.test(v.replace(/\s/g,'')),location:v=>v.trim().length>=2};
+  function validateField(id){const el=document.getElementById(id);const fg=document.getElementById('fg-'+id);const val=el.value;const ok=validators[id](val);fg.classList.remove('valid','error');if(val.length>0){if(ok)fg.classList.add('valid');else fg.classList.add('error');}return ok;}
+
+  fields.forEach(id=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>{validateField(id);updateProgress();});if(id==='password')el.addEventListener('input',()=>checkStrength(el.value));el.addEventListener('blur',()=>{if(el.value)validateField(id);});});
+
+  function togglePw(){const pw=document.getElementById('password');const isText=pw.type==='text';pw.type=isText?'password':'text';document.getElementById('eyeIcon').innerHTML=isText?'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>':'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';}
+
+  document.getElementById('signupForm').addEventListener('submit',function(e){
+    e.preventDefault();let allOk=true;
+    fields.forEach(id=>{if(!validateField(id))allOk=false;});
+    if(!document.getElementById('termsCheck').checked)allOk=false;
+    if(allOk){const btn=document.getElementById('submitBtn');btn.textContent=i18n.t('signup.btn.loading');btn.disabled=true;this.submit();}
+  });
+
+  function resetForm(){document.getElementById('signupForm').reset();document.getElementById('mainForm').style.display='block';document.getElementById('successScreen').style.display='none';document.getElementById('submitBtn').disabled=false;document.getElementById('submitBtn').textContent=i18n.t('signup.btn');fields.forEach(id=>{const fg=document.getElementById('fg-'+id);if(fg)fg.classList.remove('valid','error');});bars.forEach(b=>{document.getElementById(b).className='pw-bar';});document.getElementById('pwLabel').textContent='';updateProgress();return false;}
+</script>
+</body>
+</html>
