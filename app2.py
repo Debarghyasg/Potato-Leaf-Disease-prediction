@@ -64,7 +64,7 @@ class PotatoDiseaseModel(nn.Module):
 # ── Load model once at startup ────────────────────────────────────
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-checkpoint  = torch.load(
+checkpoint = torch.load(
     "./saved_models/potato_disease_full.pth",
     map_location=DEVICE
 )
@@ -79,42 +79,105 @@ model.eval()
 print(f"✅ PyTorch model loaded on {DEVICE}")
 print(f"✅ Classes: {CLASS_NAMES}")
 
-# ── Disease metadata (keep exactly as before) ─────────────────────
+
+# ── Disease metadata ──────────────────────────────────────────────
 treatments = {
-    "Early Blight": "Use Mancozeb or Chlorothalonil fungicide.",
-    "Late Blight":  "Apply Metalaxyl and remove infected leaves immediately.",
-    "Healthy":      "No treatment needed. Maintain proper care."
+    "Early Blight": "Apply Mancozeb (Dithane M-45) or Chlorothalonil (Kavach) fungicide every 7–10 days.",
+    "Late Blight":  "Apply Metalaxyl + Mancozeb (Ridomil Gold MZ) or Cymoxanil (Curzate) immediately.",
+    "Healthy":      "No treatment needed. Continue regular maintenance and monitoring.",
+    "Fungi":        "Apply Carbendazim (Bavistin) or Tebuconazole (Folicur) fungicide spray.",
+    "Pest":         "Apply Imidacloprid (Confidor) or Lambda-cyhalothrin (Karate) insecticide.",
+    "Virus":        "No chemical cure. Remove and destroy infected plants. Control aphid vectors with Thiamethoxam (Actara)."
 }
 
 precautions = {
     "Early Blight": [
         "Remove and destroy infected leaves immediately",
-        "Avoid overhead watering — water at the base",
-        "Rotate crops each season to break the disease cycle",
-        "Maintain proper plant spacing for airflow",
-        "Apply fungicide at first sign of symptoms"
+        "Avoid overhead watering — water at the base only",
+        "Rotate crops every season to break the disease cycle",
+        "Maintain proper plant spacing for air circulation",
+        "Apply Dithane M-45 or Kavach at first sign of symptoms",
+        "Avoid working in the field when leaves are wet"
     ],
     "Late Blight": [
-        "Destroy all infected plant material — do not compost",
-        "Avoid working in the field when leaves are wet",
-        "Use certified disease-free seed potatoes",
-        "Monitor plants daily during cool, moist weather",
-        "Apply copper-based fungicide as a preventive measure"
+        "Destroy ALL infected plant material — never compost it",
+        "Apply Ridomil Gold MZ within 24 hours of detection",
+        "Avoid overhead irrigation completely",
+        "Use certified disease-free seed potatoes only",
+        "Monitor daily during cool (10–20°C) and moist weather",
+        "Do not enter field when foliage is wet to avoid spread"
     ],
     "Healthy": [
         "Continue regular watering at the base of the plant",
-        "Monitor weekly for early signs of disease",
+        "Inspect leaves weekly for early signs of disease",
         "Maintain adequate spacing between plants",
-        "Apply balanced fertilizer as scheduled",
-        "Keep weeds cleared to reduce pest pressure"
+        "Apply balanced NPK fertilizer as scheduled",
+        "Keep field free of weeds to reduce pest pressure",
+        "Rotate crops each season as a preventive measure"
+    ],
+    "Fungi": [
+        "Remove and burn all visibly infected plant parts",
+        "Apply Bavistin (Carbendazim) or Folicur (Tebuconazole) spray",
+        "Avoid excess moisture and improve field drainage",
+        "Do not reuse soil from heavily infected plots",
+        "Maintain crop rotation with non-host plants",
+        "Spray during early morning for best absorption"
+    ],
+    "Pest": [
+        "Inspect undersides of leaves daily for eggs and insects",
+        "Apply Confidor (Imidacloprid) or Karate (Lambda-cyhalothrin)",
+        "Use yellow sticky traps to monitor and catch flying pests",
+        "Remove heavily infested leaves and destroy them",
+        "Avoid excessive nitrogen fertilizer — attracts pests",
+        "Introduce natural predators like ladybugs where possible"
+    ],
+    "Virus": [
+        "Immediately uproot and destroy ALL infected plants",
+        "Control aphids with Actara (Thiamethoxam) — they spread virus",
+        "Never propagate cuttings from infected plants",
+        "Disinfect all tools with 10% bleach solution after use",
+        "Use virus-resistant certified seed potato varieties",
+        "Install insect-proof nets to block vector insects"
     ]
 }
 
 severity_map = {
     "Early Blight": "moderate",
     "Late Blight":  "severe",
-    "Healthy":      "none"
+    "Healthy":      "none",
+    "Fungi":        "moderate",
+    "Pest":         "moderate",
+    "Virus":        "severe"
 }
+
+medicine_details = {
+    "Early Blight": [
+        {"name": "Dithane M-45",  "chemical": "Mancozeb 75% WP",                  "dose": "2.5g per litre of water"},
+        {"name": "Kavach",        "chemical": "Chlorothalonil 75% WP",             "dose": "2g per litre of water"},
+        {"name": "Indofil M-45",  "chemical": "Mancozeb 75% WP",                  "dose": "2.5g per litre of water"},
+    ],
+    "Late Blight": [
+        {"name": "Ridomil Gold MZ", "chemical": "Metalaxyl 4% + Mancozeb 64% WP", "dose": "2.5g per litre of water"},
+        {"name": "Curzate M8",      "chemical": "Cymoxanil 8% + Mancozeb 64% WP", "dose": "3g per litre of water"},
+        {"name": "Equation Pro",    "chemical": "Famoxadone + Cymoxanil",          "dose": "0.5g per litre of water"},
+    ],
+    "Healthy": [],
+    "Fungi": [
+        {"name": "Bavistin",  "chemical": "Carbendazim 50% WP",     "dose": "1g per litre of water"},
+        {"name": "Folicur",   "chemical": "Tebuconazole 25.9% EC",  "dose": "1ml per litre of water"},
+        {"name": "Saaf",      "chemical": "Carbendazim + Mancozeb", "dose": "2g per litre of water"},
+    ],
+    "Pest": [
+        {"name": "Confidor",  "chemical": "Imidacloprid 17.8% SL",    "dose": "0.5ml per litre of water"},
+        {"name": "Karate",    "chemical": "Lambda-cyhalothrin 5% EC",  "dose": "1ml per litre of water"},
+        {"name": "Rogor",     "chemical": "Dimethoate 30% EC",         "dose": "2ml per litre of water"},
+    ],
+    "Virus": [
+        {"name": "Actara",   "chemical": "Thiamethoxam 25% WG",    "dose": "0.5g per litre (for aphid control)"},
+        {"name": "Confidor", "chemical": "Imidacloprid 17.8% SL",  "dose": "0.5ml per litre (for vector control)"},
+    ]
+}
+
 
 # ── Image preprocessing ───────────────────────────────────────────
 eval_transforms = transforms.Compose([
@@ -129,7 +192,7 @@ def preprocess_image(image_bytes):
     return eval_transforms(image).unsqueeze(0).to(DEVICE)
 
 
-# ── Routes (identical contract as before — index.js unchanged) ────
+# ── Routes ────────────────────────────────────────────────────────
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ML Server is running", "port": 5000})
@@ -155,11 +218,12 @@ def predict():
         confidence      = round(float(probs[predicted_index]) * 100, 2)
 
         result = {
-            "prediction": predicted_class,
-            "confidence": confidence,
-            "treatment":  treatments.get(predicted_class, "Consult an agronomist."),
-            "precautions": precautions.get(predicted_class, []),
-            "severity":   severity_map.get(predicted_class, "unknown"),
+            "prediction":        predicted_class,
+            "confidence":        confidence,
+            "treatment":         treatments.get(predicted_class, "Consult an agronomist."),
+            "precautions":       precautions.get(predicted_class, []),
+            "severity":          severity_map.get(predicted_class, "unknown"),
+            "medicines":         medicine_details.get(predicted_class, []),
             "all_probabilities": {
                 CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
                 for i in range(len(CLASS_NAMES))

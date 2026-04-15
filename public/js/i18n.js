@@ -154,6 +154,102 @@ const i18n = (() => {
     'lang.en': { en: 'EN', hi: 'EN', bn: 'EN' },
     'lang.hi': { en: 'HI', hi: 'HI', bn: 'HI' },
     'lang.bn': { en: 'BN', hi: 'BN', bn: 'BN' },
+
+    // ── RESULT PAGE ──────────────────────────────────────────
+    'result.brand':                   { en: 'PotatoScan',           hi: 'पोटैटोस्कैन',             bn: 'পোটাটোস্ক্যান' },
+    'result.back.btn':                { en: '← New Scan',           hi: '← नया स्कैन',              bn: '← নতুন স্ক্যান' },
+
+    // Error state
+    'result.error.eyebrow':           { en: 'Scan Result',          hi: 'स्कैन परिणाम',             bn: 'স্ক্যান ফলাফল' },
+    'result.error.title1':            { en: 'Analysis',             hi: 'विश्लेषण',                 bn: 'বিশ্লেষণ' },
+    'result.error.title2':            { en: 'Failed',               hi: 'विफल',                     bn: 'ব্যর্থ' },
+    'result.error.heading':           { en: 'Something Went Wrong', hi: 'कुछ गलत हो गया',           bn: 'কিছু একটা ভুল হয়েছে' },
+    'result.error.try.btn':           { en: 'Try Again',            hi: 'फिर से कोशिश करें',         bn: 'আবার চেষ্টা করুন' },
+
+    // No-result state
+    'result.empty.eyebrow':           { en: 'No Result',            hi: 'कोई परिणाम नहीं',          bn: 'কোনো ফলাফল নেই' },
+    'result.empty.title1':            { en: 'Nothing',              hi: 'कुछ',                      bn: 'কিছু' },
+    'result.empty.title2':            { en: 'Here',                 hi: 'नहीं मिला',                bn: 'নেই এখানে' },
+    'result.empty.heading':           { en: 'No Result Found',      hi: 'कोई परिणाम नहीं मिला',     bn: 'কোনো ফলাফল পাওয়া যায়নি' },
+    'result.empty.desc':              { en: 'Please upload a leaf image from the home page to get a diagnosis.', hi: 'निदान पाने के लिए होम पेज से एक पत्ती की छवि अपलोड करें।', bn: 'রোগ নির্ণয়ের জন্য হোম পেজ থেকে একটি পাতার ছবি আপলোড করুন।' },
+    'result.empty.go.btn':            { en: 'Go Home',              hi: 'होम जाएं',                  bn: 'হোমে যান' },
+
+    // Success state — header
+    'result.success.eyebrow':         { en: 'Scan Complete',        hi: 'स्कैन पूर्ण',              bn: 'স্ক্যান সম্পন্ন' },
+    'result.success.title1':          { en: 'Diagnosis',            hi: 'निदान',                    bn: 'রোগ নির্ণয়' },
+    'result.success.title2':          { en: 'Result',               hi: 'परिणाम',                   bn: 'ফলাফল' },
+
+    // Severity badges
+    'result.sev.none':                { en: '✓ Healthy',            hi: '✓ स्वस्थ',                 bn: '✓ সুস্থ' },
+    'result.sev.moderate':            { en: '⚠ Moderate Risk',      hi: '⚠ मध्यम खतरा',             bn: '⚠ মাঝারি ঝুঁকি' },
+    'result.sev.severe':              { en: '✕ Severe Risk',        hi: '✕ गंभीर खतरा',             bn: '✕ তীব্র ঝুঁকি' },
+
+    // Confidence bar
+    'result.confidence.label':        { en: 'Model Confidence',     hi: 'मॉडल विश्वास',             bn: 'মডেলের আস্থা' },
+
+    // Card labels
+    'result.treatment.label':         { en: 'Recommended Treatment', hi: 'अनुशंसित उपचार',          bn: 'প্রস্তাবিত চিকিৎসা' },
+    'result.precautions.label':       { en: 'Precautions',          hi: 'सावधानियां',               bn: 'সতর্কতা' },
+    'result.probability.label':       { en: 'Class Probability Breakdown', hi: 'वर्ग संभावना विवरण', bn: 'শ্রেণী সম্ভাবনার বিস্তারিত' },
+
+    // Medicines table
+    'result.medicines.label':         { en: 'Recommended Medicines', hi: 'अनुशंसित दवाइयां',        bn: 'প্রস্তাবিত ওষুধ' },
+    'result.medicines.col.name':      { en: 'Product Name',         hi: 'उत्पाद का नाम',            bn: 'পণ্যের নাম' },
+    'result.medicines.col.chemical':  { en: 'Chemical',             hi: 'रासायनिक',                 bn: 'রাসায়নিক' },
+    'result.medicines.col.dose':      { en: 'Dosage',               hi: 'खुराक',                    bn: 'মাত্রা' },
+    'result.medicines.none':          { en: 'No medicines required for healthy plants.', hi: 'स्वस्थ पौधों के लिए कोई दवा आवश्यक नहीं।', bn: 'সুস্থ গাছের জন্য কোনো ওষুধ দরকার নেই।' },
+
+    // Action buttons
+    'result.analyze.btn':             { en: '⬡ Analyze Another',    hi: '⬡ और विश्लेषण करें',       bn: '⬡ আরেকটি বিশ্লেষণ করুন' },
+    'result.save.btn':                { en: 'Save Report',          hi: 'रिपोर्ट सेव करें',          bn: 'রিপোর্ট সেভ করুন' },
+
+    // Disease name translations
+    'disease.Healthy':                { en: 'Healthy',              hi: 'स्वस्थ',                   bn: 'সুস্থ' },
+    'disease.Early Blight':           { en: 'Early Blight',         hi: 'प्रारंभिक झुलसा',          bn: 'আর্লি ব্লাইট' },
+    'disease.Late Blight':            { en: 'Late Blight',          hi: 'देर से झुलसा',              bn: 'লেট ব্লাইট' },
+    'disease.Fungi':                  { en: 'Fungal Infection',     hi: 'फफूंद संक्रमण',             bn: 'ছত্রাকের সংক্রমণ' },
+    'disease.Pest':                   { en: 'Pest Damage',          hi: 'कीट क्षति',                bn: 'পোকার ক্ষতি' },
+    'disease.Virus':                  { en: 'Viral Infection',      hi: 'वायरल संक्रमण',             bn: 'ভাইরাস সংক্রমণ' },
+
+    // Treatments (server returns English; these are client-side overrides)
+    'treatment.Healthy':       { en: 'No treatment needed. Continue regular maintenance and monitoring.', hi: 'कोई उपचार आवश्यक नहीं। नियमित रखरखाव और निगरानी जारी रखें।', bn: 'কোনো চিকিৎসার প্রয়োজন নেই। নিয়মিত রক্ষণাবেক্ষণ ও পর্যবেক্ষণ চালিয়ে যান।' },
+    'treatment.Early Blight':  { en: 'Apply Mancozeb (Dithane M-45) or Chlorothalonil (Kavach) fungicide every 7–10 days.', hi: 'हर 7–10 दिन में Mancozeb (Dithane M-45) या Chlorothalonil (Kavach) फफूंदनाशक लगाएं।', bn: 'প্রতি ৭–১০ দিনে Mancozeb (Dithane M-45) বা Chlorothalonil (Kavach) ছত্রাকনাশক প্রয়োগ করুন।' },
+    'treatment.Late Blight':   { en: 'Apply Metalaxyl + Mancozeb (Ridomil Gold MZ) or Cymoxanil (Curzate) immediately.', hi: 'तुरंत Metalaxyl + Mancozeb (Ridomil Gold MZ) या Cymoxanil (Curzate) लगाएं।', bn: 'অবিলম্বে Metalaxyl + Mancozeb (Ridomil Gold MZ) বা Cymoxanil (Curzate) প্রয়োগ করুন।' },
+    'treatment.Fungi':         { en: 'Apply Carbendazim (Bavistin) or Tebuconazole (Folicur) fungicide spray.', hi: 'Carbendazim (Bavistin) या Tebuconazole (Folicur) फफूंदनाशक स्प्रे करें।', bn: 'Carbendazim (Bavistin) বা Tebuconazole (Folicur) ছত্রাকনাশক স্প্রে করুন।' },
+    'treatment.Pest':          { en: 'Apply Imidacloprid (Confidor) or Lambda-cyhalothrin (Karate) insecticide.', hi: 'Imidacloprid (Confidor) या Lambda-cyhalothrin (Karate) कीटनाशक लगाएं।', bn: 'Imidacloprid (Confidor) বা Lambda-cyhalothrin (Karate) কীটনাশক প্রয়োগ করুন।' },
+    'treatment.Virus':         { en: 'No chemical cure. Remove and destroy infected plants. Control aphid vectors with Thiamethoxam (Actara).', hi: 'कोई रासायनिक इलाज नहीं। संक्रमित पौधों को हटाएं और नष्ट करें। Thiamethoxam (Actara) से एफिड वाहकों को नियंत्रित करें।', bn: 'কোনো রাসায়নিক প্রতিকার নেই। সংক্রমিত গাছ সরিয়ে ধ্বংস করুন। Thiamethoxam (Actara) দিয়ে এফিড নিয়ন্ত্রণ করুন।' },
+
+    // Precautions (arrays translated per disease per language)
+    'precautions.Healthy': {
+      en: ['Continue regular watering at the base of the plant','Inspect leaves weekly for early signs of disease','Maintain adequate spacing between plants','Apply balanced NPK fertilizer as scheduled','Keep field free of weeds to reduce pest pressure','Rotate crops each season as a preventive measure'],
+      hi: ['पौधे के आधार पर नियमित सिंचाई जारी रखें','रोग के शुरुआती संकेतों के लिए साप्ताहिक पत्तियों का निरीक्षण करें','पौधों के बीच पर्याप्त दूरी बनाए रखें','निर्धारित समय पर संतुलित NPK उर्वरक लगाएं','कीटों के दबाव को कम करने के लिए खेत को खरपतवार मुक्त रखें','निवारक उपाय के रूप में हर मौसम में फसल चक्र अपनाएं'],
+      bn: ['গাছের গোড়ায় নিয়মিত পানি দেওয়া চালিয়ে যান','রোগের প্রাথমিক লক্ষণের জন্য সাপ্তাহিক পাতা পরীক্ষা করুন','গাছের মধ্যে পর্যাপ্ত ব্যবধান রাখুন','নির্ধারিত সময়ে সুষম NPK সার প্রয়োগ করুন','পোকার চাপ কমাতে মাঠ আগাছামুক্ত রাখুন','প্রতিরোধমূলক ব্যবস্থা হিসেবে প্রতি মৌসুমে ফসল পরিবর্তন করুন']
+    },
+    'precautions.Early Blight': {
+      en: ['Remove and destroy infected leaves immediately','Avoid overhead watering — water at the base only','Rotate crops every season to break the disease cycle','Maintain proper plant spacing for air circulation','Apply Dithane M-45 or Kavach at first sign of symptoms','Avoid working in the field when leaves are wet'],
+      hi: ['संक्रमित पत्तियों को तुरंत हटाएं और नष्ट करें','ऊपर से सिंचाई से बचें — केवल आधार पर पानी दें','रोग चक्र तोड़ने के लिए हर मौसम में फसल चक्र अपनाएं','वायु संचार के लिए उचित पौध दूरी बनाए रखें','लक्षण दिखने पर तुरंत Dithane M-45 या Kavach लगाएं','पत्तियां गीली हों तो खेत में काम करने से बचें'],
+      bn: ['সংক্রমিত পাতা তাৎক্ষণিকভাবে সরিয়ে নষ্ট করুন','উপরে পানি দেওয়া এড়িয়ে চলুন — শুধু গোড়ায় পানি দিন','রোগচক্র ভাঙতে প্রতি মৌসুমে ফসল পরিবর্তন করুন','বায়ু চলাচলের জন্য সঠিক গাছের ব্যবধান রাখুন','লক্ষণ দেখামাত্র Dithane M-45 বা Kavach প্রয়োগ করুন','পাতা ভেজা থাকলে মাঠে কাজ করা এড়িয়ে চলুন']
+    },
+    'precautions.Late Blight': {
+      en: ['Destroy ALL infected plant material — never compost it','Apply Ridomil Gold MZ within 24 hours of detection','Avoid overhead irrigation completely','Use certified disease-free seed potatoes only','Monitor daily during cool (10–20°C) and moist weather','Do not enter field when foliage is wet to avoid spread'],
+      hi: ['सभी संक्रमित पौध सामग्री नष्ट करें — कभी कम्पोस्ट न करें','पता लगने के 24 घंटे के भीतर Ridomil Gold MZ लगाएं','ऊपर से सिंचाई पूरी तरह से बचें','केवल प्रमाणित रोगमुक्त बीज आलू का उपयोग करें','ठंडे (10–20°C) और नम मौसम में दैनिक निगरानी करें','फैलाव रोकने के लिए पत्तियां गीली होने पर खेत में प्रवेश न करें'],
+      bn: ['সমস্ত সংক্রমিত গাছের উপাদান ধ্বংস করুন — কখনো কম্পোস্ট করবেন না','সনাক্তের ২৪ ঘণ্টার মধ্যে Ridomil Gold MZ প্রয়োগ করুন','উপরে সেচ সম্পূর্ণ এড়িয়ে চলুন','শুধুমাত্র প্রত্যয়িত রোগমুক্ত বীজ আলু ব্যবহার করুন','ঠান্ডা (১০–২০°C) ও আর্দ্র আবহাওয়ায় প্রতিদিন পর্যবেক্ষণ করুন','পাতা ভেজা থাকলে ছড়িয়ে পড়া রোধে মাঠে প্রবেশ করবেন না']
+    },
+    'precautions.Fungi': {
+      en: ['Remove and burn all visibly infected plant parts','Apply Bavistin (Carbendazim) or Folicur (Tebuconazole) spray','Avoid excess moisture and improve field drainage','Do not reuse soil from heavily infected plots','Maintain crop rotation with non-host plants','Spray during early morning for best absorption'],
+      hi: ['दिखाई देने वाले सभी संक्रमित पौध भागों को हटाएं और जलाएं','Bavistin (Carbendazim) या Folicur (Tebuconazole) स्प्रे करें','अत्यधिक नमी से बचें और खेत की जल निकासी सुधारें','भारी संक्रमित क्षेत्रों की मिट्टी पुनः उपयोग न करें','गैर-मेजबान पौधों के साथ फसल चक्र बनाए रखें','सर्वोत्तम अवशोषण के लिए सुबह जल्दी स्प्रे करें'],
+      bn: ['দৃশ্যমান সংক্রমিত সমস্ত গাছের অংশ সরিয়ে পুড়িয়ে ফেলুন','Bavistin (Carbendazim) বা Folicur (Tebuconazole) স্প্রে করুন','অতিরিক্ত আর্দ্রতা এড়িয়ে মাঠের পানি নিষ্কাশন উন্নত করুন','ভারীভাবে সংক্রমিত জমির মাটি পুনরায় ব্যবহার করবেন না','অ-পোষক গাছের সাথে ফসল পরিবর্তন বজায় রাখুন','সর্বোত্তম শোষণের জন্য ভোরে স্প্রে করুন']
+    },
+    'precautions.Pest': {
+      en: ['Inspect undersides of leaves daily for eggs and insects','Apply Confidor (Imidacloprid) or Karate (Lambda-cyhalothrin)','Use yellow sticky traps to monitor and catch flying pests','Remove heavily infested leaves and destroy them','Avoid excessive nitrogen fertilizer — attracts pests','Introduce natural predators like ladybugs where possible'],
+      hi: ['अंडों और कीटों के लिए रोजाना पत्तियों की निचली सतह की जांच करें','Confidor (Imidacloprid) या Karate (Lambda-cyhalothrin) लगाएं','उड़ने वाले कीटों की निगरानी के लिए पीले चिपचिपे जाल का उपयोग करें','भारी रूप से संक्रमित पत्तियों को हटाएं और नष्ट करें','अत्यधिक नाइट्रोजन उर्वरक से बचें — कीटों को आकर्षित करता है','जहां संभव हो लेडीबग जैसे प्राकृतिक शत्रुओं को शामिल करें'],
+      bn: ['ডিম ও পোকার জন্য প্রতিদিন পাতার নিচের দিক পরীক্ষা করুন','Confidor (Imidacloprid) বা Karate (Lambda-cyhalothrin) প্রয়োগ করুন','উড়ন্ত পোকা ধরতে হলুদ আঠালো ফাঁদ ব্যবহার করুন','ভারীভাবে আক্রান্ত পাতা সরিয়ে নষ্ট করুন','অতিরিক্ত নাইট্রোজেন সার এড়িয়ে চলুন — পোকা আকৃষ্ট হয়','যেখানে সম্ভব লেডিবাগের মতো প্রাকৃতিক শিকারি ব্যবহার করুন']
+    },
+    'precautions.Virus': {
+      en: ['Immediately uproot and destroy ALL infected plants','Control aphids with Actara (Thiamethoxam) — they spread virus','Never propagate cuttings from infected plants','Disinfect all tools with 10% bleach solution after use','Use virus-resistant certified seed potato varieties','Install insect-proof nets to block vector insects'],
+      hi: ['तुरंत सभी संक्रमित पौधों को उखाड़ें और नष्ट करें','Actara (Thiamethoxam) से एफिड्स को नियंत्रित करें — वे वायरस फैलाते हैं','संक्रमित पौधों से कभी कटिंग न लगाएं','उपयोग के बाद सभी उपकरणों को 10% ब्लीच से कीटाणुरहित करें','वायरस-प्रतिरोधी प्रमाणित बीज आलू किस्मों का उपयोग करें','वाहक कीटों को रोकने के लिए कीट-रोधी जाल लगाएं'],
+      bn: ['অবিলম্বে সমস্ত সংক্রমিত গাছ উপড়ে নষ্ট করুন','Actara (Thiamethoxam) দিয়ে এফিড নিয়ন্ত্রণ করুন — এরা ভাইরাস ছড়ায়','সংক্রমিত গাছ থেকে কখনো কলম নেবেন না','ব্যবহারের পর সব সরঞ্জাম ১০% ব্লিচ দ্রবণে জীবাণুমুক্ত করুন','ভাইরাস-প্রতিরোধী প্রত্যয়িত বীজ আলুর জাত ব্যবহার করুন','বাহক পোকা ঠেকাতে কীট-প্রতিরোধী জাল লাগান']
+    },
   };
 
   // ── State ────────────────────────────────────────────────────
@@ -224,7 +320,7 @@ const i18n = (() => {
     applyTranslations(currentLang);
   }
 
-  return { t, init, applyTranslations, currentLang: () => currentLang };
+  return { t, init, applyTranslations, currentLang: () => currentLang, translations };
 })();
 
 // Auto-init when DOM ready
