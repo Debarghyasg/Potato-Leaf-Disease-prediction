@@ -1,34 +1,85 @@
 import os
-# Disable oneDNN custom operations for cleaner logs
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tensorflow as tf
+import torch
+import torch.nn as nn
+from torchvision import transforms, models
 import numpy as np
 from PIL import Image
 import io
 
 app = Flask(__name__)
-CORS(app) # Allows the Node.js server to communicate without blocked requests
+CORS(app)
 
-# ── Load model & class names ──────────────────────────────────────
-# Ensure this file is in the same directory as app2.py
-# app2.py line 17 — change to:
-model = tf.keras.models.load_model("potato_leaf_prod_v1.keras")
+# ── DebIsh Activation (must match training.py exactly) ───────────
+class DebIshActivation(nn.Module):
+    def __init__(self, epsilon: float = 1e-7):
+        super().__init__()
+        self.epsilon = epsilon
+        self.alpha   = nn.Parameter(torch.tensor(1.0))
+        self.beta    = nn.Parameter(torch.tensor(0.5))
 
-try:
-    with open("class_names.txt", "r") as f:
-        class_names = [line.strip() for line in f.readlines()]
-except FileNotFoundError:
-    # Fallback if the file is missing
-    class_names = ["Early Blight", "Late Blight", "Healthy"]
+    def forward(self, x):
+        dims        = list(range(1, x.dim()))
+        var_x       = x.var(dim=dims, keepdim=True)
+        norm_factor = 1.0 / torch.sqrt(var_x + self.epsilon)
+        sigma       = torch.sigmoid(x)
+        f_linear    = self.alpha * x
+        f_nonlinear = self.beta * sigma * (1.0 - sigma) * x
+        dominant    = torch.where(
+            torch.abs(f_linear) >= torch.abs(f_nonlinear),
+            f_linear, f_nonlinear
+        )
+        return dominant * norm_factor
 
-IMG_SIZE = 224
-print("Model Loaded. Detected Classes:", class_names)
 
-# ── Disease Metadata ──────────────────────────────────────────────
-# These match the keys in your result.ejs template
+# ── Model Definition (must match training.py exactly) ────────────
+class PotatoDiseaseModel(nn.Module):
+    def __init__(self, num_classes: int, dropout: float = 0.4):
+        super().__init__()
+        self.backbone = models.efficientnet_v2_s(weights=None)
+        in_features   = self.backbone.classifier[1].in_features
+        self.backbone.classifier = nn.Identity()
+
+        self.head = nn.Sequential(
+            nn.Linear(in_features, 512, bias=False),
+            nn.BatchNorm1d(512),
+            DebIshActivation(),
+            nn.Dropout(dropout),
+
+            nn.Linear(512, 256, bias=False),
+            nn.BatchNorm1d(256),
+            DebIshActivation(),
+            nn.Dropout(dropout),
+
+            nn.Linear(256, num_classes),
+        )
+
+    def forward(self, x):
+        return self.head(self.backbone(x))
+
+
+# ── Load model once at startup ────────────────────────────────────
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+checkpoint  = torch.load(
+    "./saved_models/potato_disease_full.pth",
+    map_location=DEVICE
+)
+CLASS_NAMES = checkpoint["class_names"]
+CONFIG      = checkpoint["config"]
+
+model = PotatoDiseaseModel(num_classes=len(CLASS_NAMES), dropout=CONFIG["dropout_rate"])
+model.load_state_dict(checkpoint["model_state_dict"])
+model.to(DEVICE)
+model.eval()
+
+print(f"✅ PyTorch model loaded on {DEVICE}")
+print(f"✅ Classes: {CLASS_NAMES}")
+
+# ── Disease metadata (keep exactly as before) ─────────────────────
 treatments = {
     "Early Blight": "Use Mancozeb or Chlorothalonil fungicide.",
     "Late Blight":  "Apply Metalaxyl and remove infected leaves immediately.",
@@ -65,27 +116,27 @@ severity_map = {
     "Healthy":      "none"
 }
 
-# ── Helper ────────────────────────────────────────────────────────
+# ── Image preprocessing ───────────────────────────────────────────
+eval_transforms = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std =[0.229, 0.224, 0.225]),
+])
+
 def preprocess_image(image_bytes):
-    # Convert bytes to PIL Image
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    image = image.resize((IMG_SIZE, IMG_SIZE))
-    image = np.array(image)
-    
-    # ResNet specific preprocessing
-    image = tf.keras.applications.efficientnet_v2.preprocess_input(image)
-    image = np.expand_dims(image, axis=0)
-    return image
+    return eval_transforms(image).unsqueeze(0).to(DEVICE)
 
-# ── Routes ────────────────────────────────────────────────────────
 
+# ── Routes (identical contract as before — index.js unchanged) ────
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ML Server is running", "port": 5000})
 
+
 @app.route("/predict", methods=["POST"])
 def predict():
-    # 1. Check if file exists in the request
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
 
@@ -94,36 +145,32 @@ def predict():
         return jsonify({"error": "No selected file"}), 400
 
     try:
-        # 2. Read image and preprocess
-        image_bytes = file.read()
-        processed_img = preprocess_image(image_bytes)
+        tensor = preprocess_image(file.read())
 
-        # 3. Model Inference
-        prediction = model.predict(processed_img)
-        predicted_index = int(np.argmax(prediction))
-        predicted_class = class_names[predicted_index]
-        confidence = round(float(np.max(prediction)) * 100, 2)
+        with torch.no_grad():
+            probs = torch.softmax(model(tensor), dim=1)[0].cpu().numpy()
 
-        # 4. Construct JSON response for Node.js
+        predicted_index = int(np.argmax(probs))
+        predicted_class = CLASS_NAMES[predicted_index]
+        confidence      = round(float(probs[predicted_index]) * 100, 2)
+
         result = {
             "prediction": predicted_class,
             "confidence": confidence,
-            "treatment": treatments.get(predicted_class, "Consult an agronomist."),
+            "treatment":  treatments.get(predicted_class, "Consult an agronomist."),
             "precautions": precautions.get(predicted_class, []),
-            "severity": severity_map.get(predicted_class, "unknown"),
+            "severity":   severity_map.get(predicted_class, "unknown"),
             "all_probabilities": {
-                class_names[i]: round(float(prediction[0][i]) * 100, 2)
-                for i in range(len(class_names))
+                CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
+                for i in range(len(CLASS_NAMES))
             }
         }
-
-        # Return just the data — Node.js handles the rest!
         return jsonify(result)
 
     except Exception as e:
         print(f"Error during prediction: {str(e)}")
         return jsonify({"error": "Internal Model Error", "details": str(e)}), 500
 
+
 if __name__ == "__main__":
-    # Ensure this runs on port 5000 to match your Node.js FLASK_URL
     app.run(host="0.0.0.0", port=5000, debug=True)
