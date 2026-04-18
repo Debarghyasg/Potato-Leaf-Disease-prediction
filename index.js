@@ -68,12 +68,16 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                 <div style="font-family:sans-serif;max-width:600px;border:1px solid #eee;padding:20px;border-radius:10px;">
                     <h2 style="color:#4a8c3f;">Welcome to the family, ${userName}!</h2>
                     <p>Thanks for joining <b>PotatoScan</b>. We're excited to help you keep your crops healthy using AI.</p>
+                    <p style="color:#3f9949; font-family:sans-serif; font-size:18px; font-weight:bold; margin:20px 0;">
+                    AI is useful for those who need it the most, This one for the Farmers.🌿
+                    </p>
                     <p>You can now upload leaf images and get instant diagnoses for Early Blight, Late Blight, or confirm your plants are Healthy.</p>
                     <br>
                     <a href="https://github.com/Debarghyasg/Potato-Leaf-Disease-prediction"
                        style="background:#4a8c3f;color:white;padding:12px 25px;text-decoration:none;border-radius:5px;display:inline-block;">
                        Start Your First Scan
                     </a>
+                    
                     <p style="margin-top:30px;font-size:12px;color:#888;border-top:1px solid #eee;padding-top:10px;">
                         Powered by Deep Learning
                     </p>
