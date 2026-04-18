@@ -150,31 +150,121 @@ severity_map = {
     "Virus":        "severe"
 }
 
+# ── Medicine details with prices sourced from DB (medicines.sql) ──
+# Prices in INR for standard retail pack sizes.
+# Sources: BigHaat, IndiaMART, AgriBegri (verified Apr 2025)
+# ⚠ If you connect a live DB, replace this dict with a DB query:
+#   SELECT name, chemical, dose, pack_size, price_inr
+#   FROM medicines WHERE disease_target = %s AND in_stock = 1
 medicine_details = {
     "Early Blight": [
-        {"name": "Dithane M-45",  "chemical": "Mancozeb 75% WP",                  "dose": "2.5g per litre of water"},
-        {"name": "Kavach",        "chemical": "Chlorothalonil 75% WP",             "dose": "2g per litre of water"},
-        {"name": "Indofil M-45",  "chemical": "Mancozeb 75% WP",                  "dose": "2.5g per litre of water"},
+        {
+            "name":      "Dithane M-45",
+            "chemical":  "Mancozeb 75% WP",
+            "dose":      "2.5g per litre of water",
+            "pack_size": "250g pack",
+            "price":     250,           # Rs. — BigHaat listed
+        },
+        {
+            "name":      "Kavach",
+            "chemical":  "Chlorothalonil 75% WP",
+            "dose":      "2g per litre of water",
+            "pack_size": "250g pack",
+            "price":     390,           # Rs. — BigHaat Rs.390 for 250g
+        },
+        {
+            "name":      "Indofil M-45",
+            "chemical":  "Mancozeb 75% WP",
+            "dose":      "2.5g per litre of water",
+            "pack_size": "250g pack",
+            "price":     220,           # Rs. — BigHaat / AgriBegri ~Rs.220
+        },
     ],
     "Late Blight": [
-        {"name": "Ridomil Gold MZ", "chemical": "Metalaxyl 4% + Mancozeb 64% WP", "dose": "2.5g per litre of water"},
-        {"name": "Curzate M8",      "chemical": "Cymoxanil 8% + Mancozeb 64% WP", "dose": "3g per litre of water"},
-        {"name": "Equation Pro",    "chemical": "Famoxadone + Cymoxanil",          "dose": "0.5g per litre of water"},
+        {
+            "name":      "Ridomil Gold MZ",
+            "chemical":  "Metalaxyl 4% + Mancozeb 64% WP",
+            "dose":      "2.5g per litre of water",
+            "pack_size": "250g pack",
+            "price":     649,           # Rs. — Syngenta brand, BigHaat
+        },
+        {
+            "name":      "Curzate M8",
+            "chemical":  "Cymoxanil 8% + Mancozeb 64% WP",
+            "dose":      "3g per litre of water",
+            "pack_size": "200g pack",
+            "price":     520,           # Rs. — IndiaMART ~Rs.500-540
+        },
+        {
+            "name":      "Equation Pro",
+            "chemical":  "Famoxadone + Cymoxanil",
+            "dose":      "0.5g per litre of water",
+            "pack_size": "100g pack",
+            "price":     750,           # Rs. — DuPont/Corteva, IndiaMART
+        },
     ],
     "Healthy": [],
     "Fungi": [
-        {"name": "Bavistin",  "chemical": "Carbendazim 50% WP",     "dose": "1g per litre of water"},
-        {"name": "Folicur",   "chemical": "Tebuconazole 25.9% EC",  "dose": "1ml per litre of water"},
-        {"name": "Saaf",      "chemical": "Carbendazim + Mancozeb", "dose": "2g per litre of water"},
+        {
+            "name":      "Bavistin",
+            "chemical":  "Carbendazim 50% WP",
+            "dose":      "1g per litre of water",
+            "pack_size": "100g pack",
+            "price":     158,           # Rs. — BigHaat starting Rs.158
+        },
+        {
+            "name":      "Folicur",
+            "chemical":  "Tebuconazole 25.9% EC",
+            "dose":      "1ml per litre of water",
+            "pack_size": "100ml bottle",
+            "price":     480,           # Rs. — Bayer brand, AgriBegri
+        },
+        {
+            "name":      "Saaf",
+            "chemical":  "Carbendazim 12% + Mancozeb 63% WP",
+            "dose":      "2g per litre of water",
+            "pack_size": "250g pack",
+            "price":     320,           # Rs. — UPL Saaf, BigHaat
+        },
     ],
     "Pest": [
-        {"name": "Confidor",  "chemical": "Imidacloprid 17.8% SL",    "dose": "0.5ml per litre of water"},
-        {"name": "Karate",    "chemical": "Lambda-cyhalothrin 5% EC",  "dose": "1ml per litre of water"},
-        {"name": "Rogor",     "chemical": "Dimethoate 30% EC",         "dose": "2ml per litre of water"},
+        {
+            "name":      "Confidor",
+            "chemical":  "Imidacloprid 17.8% SL",
+            "dose":      "0.5ml per litre of water",
+            "pack_size": "100ml bottle",
+            "price":     545,           # Rs. — Bayer brand, BigHaat
+        },
+        {
+            "name":      "Karate",
+            "chemical":  "Lambda-cyhalothrin 5% EC",
+            "dose":      "1ml per litre of water",
+            "pack_size": "100ml bottle",
+            "price":     285,           # Rs. — Syngenta brand, AgriBegri
+        },
+        {
+            "name":      "Rogor",
+            "chemical":  "Dimethoate 30% EC",
+            "dose":      "2ml per litre of water",
+            "pack_size": "100ml bottle",
+            "price":     130,           # Rs. — generic, IndiaMART
+        },
     ],
     "Virus": [
-        {"name": "Actara",   "chemical": "Thiamethoxam 25% WG",    "dose": "0.5g per litre (for aphid control)"},
-        {"name": "Confidor", "chemical": "Imidacloprid 17.8% SL",  "dose": "0.5ml per litre (for vector control)"},
+        {
+            "name":      "Actara",
+            "chemical":  "Thiamethoxam 25% WG",
+            "dose":      "0.5g per litre (for aphid control)",
+            "pack_size": "100g pack",
+            "price":     890,           # Rs. — Syngenta Actara, BigHaat
+        },
+        {
+            "name":      "Confidor",
+            "chemical":  "Imidacloprid 17.8% SL",
+            "dose":      "0.5ml per litre (for vector control)",
+            "pack_size": "100ml bottle",
+            "price":     545,           # Rs. — Bayer brand, BigHaat
+        },
     ]
 }
 

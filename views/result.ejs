@@ -34,7 +34,6 @@
       cursor: none;
     }
 
-    /* Cursor */
     .cursor {
       width: 12px; height: 12px;
       background: var(--moss); border-radius: 50%;
@@ -49,7 +48,6 @@
       opacity: 0.5;
     }
 
-    /* Grain overlay */
     body::before {
       content: '';
       position: fixed; inset: 0;
@@ -57,7 +55,6 @@
       pointer-events: none; z-index: 100; opacity: 0.35;
     }
 
-    /* BG radial glow */
     .bg-glow {
       position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
       width: 900px; height: 600px;
@@ -65,7 +62,6 @@
       pointer-events: none; z-index: 0;
     }
 
-    /* NAV */
     .top-nav {
       position: fixed; top: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; align-items: center;
@@ -77,9 +73,8 @@
       font-size: 22px; color: var(--moss);
       letter-spacing: 0.1em; text-decoration: none;
     }
-    .nav-right {
-      display: flex; align-items: center; gap: 12px;
-    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+
     .back-btn {
       display: inline-flex; align-items: center; gap: 7px;
       background: rgba(255,255,255,0.75);
@@ -96,31 +91,22 @@
       transform: translateY(-1px); box-shadow: 0 4px 16px rgba(74,140,63,0.18);
     }
 
-    /* LANG SWITCHER */
-    .lang-switcher {
-      display: flex; align-items: center; gap: 4px;
-      background: rgba(255,255,255,0.75);
-      border: 1.5px solid rgba(74,140,63,0.35);
-      border-radius: 20px; padding: 4px 6px;
-      backdrop-filter: blur(10px);
-    }
-    .lang-btn {
+    .cart-nav-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--moss); border: none;
+      color: #fff; padding: 8px 18px; border-radius: 20px;
       font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      transition: all 0.3s cubic-bezier(0.23,1,0.32,1); cursor: none;
+    }
+    .cart-nav-btn:hover { background: var(--lime); transform: translateY(-1px); }
+    .cart-count-badge {
+      background: var(--sun); color: var(--text-dark);
+      border-radius: 50%; width: 18px; height: 18px;
+      display: inline-flex; align-items: center; justify-content: center;
       font-size: 10px; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--fog); background: transparent;
-      border: none; border-radius: 14px;
-      padding: 5px 10px; cursor: none;
-      transition: all 0.2s ease;
-    }
-    .lang-btn.active {
-      background: var(--moss); color: #fff;
-    }
-    .lang-btn:hover:not(.active) {
-      color: var(--moss); background: rgba(74,140,63,0.08);
     }
 
-    /* PAGE */
     .page {
       max-width: 920px; margin: 0 auto;
       padding: 120px 40px 80px;
@@ -149,7 +135,6 @@
       animation: fadeSlideUp 0.8s ease 0.05s both;
     }
 
-    /* ERROR */
     .error-card {
       background: rgba(192,57,43,0.05);
       border: 1px solid rgba(192,57,43,0.22);
@@ -162,7 +147,6 @@
     }
     .error-card p { color: var(--fog); font-size: 14px; line-height: 1.7; font-weight: 300; margin-bottom: 28px; }
 
-    /* RESULT HEADER */
     .result-header {
       display: flex; gap: 24px; align-items: stretch;
       margin-bottom: 20px; animation: fadeSlideUp 0.6s ease both;
@@ -231,7 +215,6 @@
     .fill-amber { background: var(--sun); }
     .fill-red   { background: var(--blight); }
 
-    /* GRID */
     .body-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
       animation: fadeSlideUp 0.7s ease 0.1s both;
@@ -274,10 +257,7 @@
     .prec-list.amber li::before { background: var(--sun); }
     .prec-list.red   li::before { background: var(--blight); }
 
-    /* MEDICINES TABLE */
-    .medicines-table {
-      width: 100%; border-collapse: collapse; margin-top: 4px;
-    }
+    .medicines-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     .medicines-table th {
       font-family: 'Space Mono', monospace; font-size: 9px;
       letter-spacing: 0.1em; text-transform: uppercase;
@@ -290,15 +270,33 @@
       line-height: 1.5;
     }
     .medicines-table tr:last-child td { border-bottom: none; }
-    .medicine-name {
-      font-weight: 600; color: var(--text-dark); font-size: 13px;
+    .medicine-name { font-weight: 600; color: var(--text-dark); font-size: 13px; }
+    .medicine-none { font-size: 13px; color: var(--fog); font-weight: 300; font-style: italic; padding: 8px 0; }
+
+    /* ── Price cell ── */
+    .medicine-price {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px; color: var(--moss); font-weight: 700;
+      white-space: nowrap;
     }
-    .medicine-none {
-      font-size: 13px; color: var(--fog); font-weight: 300;
-      font-style: italic; padding: 8px 0;
+    .medicine-pack {
+      font-size: 10px; color: var(--fog); font-weight: 300;
+      display: block; margin-top: 2px;
     }
 
-    /* PROBABILITIES */
+    .add-to-cart-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(74,140,63,0.08); border: 1px solid rgba(74,140,63,0.3);
+      color: var(--moss); border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 6px 12px; cursor: none;
+      transition: all 0.25s ease; white-space: nowrap;
+    }
+    .add-to-cart-btn:hover { background: var(--moss); color: #fff; transform: translateY(-1px); }
+    .add-to-cart-btn.in-cart { background: var(--moss); color: #fff; border-color: var(--moss); }
+    .add-to-cart-btn.in-cart:hover { background: var(--lime); border-color: var(--lime); opacity: 0.85; }
+
     .probs-card {
       background: rgba(255,255,255,0.85);
       border: 1px solid var(--border); border-radius: 18px; padding: 28px;
@@ -308,22 +306,12 @@
     }
     .prob-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .prob-row:last-child { margin-bottom: 0; }
-    .prob-name {
-      font-family: 'Space Mono', monospace; font-size: 11px;
-      color: var(--text-dark); width: 140px; flex-shrink: 0; letter-spacing: 0.04em;
-    }
+    .prob-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dark); width: 140px; flex-shrink: 0; letter-spacing: 0.04em; }
     .prob-track { flex: 1; height: 4px; background: rgba(74,140,63,0.1); border-radius: 99px; overflow: hidden; }
     .prob-fill  { height: 100%; border-radius: 99px; transition: width 1.1s cubic-bezier(0.16,1,0.3,1); }
-    .prob-val   {
-      font-family: 'Space Mono', monospace; font-size: 11px;
-      color: var(--fog); width: 48px; text-align: right;
-    }
+    .prob-val   { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--fog); width: 48px; text-align: right; }
 
-    /* ACTIONS */
-    .actions {
-      display: flex; gap: 14px; margin-top: 24px;
-      animation: fadeSlideUp 0.7s ease 0.3s both;
-    }
+    .actions { display: flex; gap: 14px; margin-top: 24px; animation: fadeSlideUp 0.7s ease 0.3s both; }
     .btn {
       flex: 1; padding: 16px 20px; border-radius: 14px;
       font-family: 'Bebas Neue', sans-serif; font-size: 20px;
@@ -344,10 +332,183 @@
     .btn-outline { background: rgba(255,255,255,0.75); color: var(--text-dark); border: 1.5px solid var(--border); backdrop-filter: blur(10px); }
     .btn-outline:hover { border-color: var(--moss); transform: translateY(-2px); box-shadow: 0 6px 20px var(--glow); }
 
+    /* CART DRAWER */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+      z-index: 800; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+    .cart-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 380px; max-width: 95vw;
+      background: #fff; z-index: 900;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+      display: flex; flex-direction: column;
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+    }
+    .cart-drawer.open { transform: translateX(0); }
+    .cart-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 24px 24px 16px; border-bottom: 1px solid var(--border);
+    }
+    .cart-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.06em; color: var(--text-dark); }
+    .cart-close-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--border); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--fog); cursor: none; transition: all 0.2s ease;
+    }
+    .cart-close-btn:hover { background: var(--bark); color: var(--text-dark); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
+    .cart-empty { text-align: center; padding: 48px 0; font-size: 14px; color: var(--fog); font-weight: 300; }
+    .cart-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .cart-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(74,140,63,0.08); }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 600; font-size: 14px; color: var(--text-dark); margin-bottom: 3px; }
+    .cart-item-chemical { font-size: 12px; color: var(--fog); font-weight: 300; margin-bottom: 4px; }
+    .cart-item-dose { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--moss); letter-spacing: 0.04em; }
+    .cart-item-controls { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .qty-btn {
+      width: 26px; height: 26px; border-radius: 6px;
+      border: 1px solid var(--border); background: transparent;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      color: var(--moss); cursor: none; transition: all 0.2s ease;
+    }
+    .qty-btn:hover { background: var(--moss); color: #fff; border-color: var(--moss); }
+    .qty-display { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--text-dark); min-width: 20px; text-align: center; }
+    .remove-item-btn {
+      background: transparent; border: none;
+      font-size: 12px; color: var(--blight); cursor: none;
+      font-family: 'Space Mono', monospace; letter-spacing: 0.04em;
+      padding: 2px 0; text-decoration: underline; transition: opacity 0.2s;
+    }
+    .remove-item-btn:hover { opacity: 0.7; }
+    .cart-footer { padding: 16px 24px 24px; border-top: 1px solid var(--border); }
+    .cart-summary { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .cart-summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--fog); }
+    .cart-summary-row.total { font-size: 16px; font-weight: 600; color: var(--text-dark); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
+    .cart-summary-row.total span:last-child { color: var(--moss); }
+    .pay-btn {
+      width: 100%; padding: 16px; border-radius: 14px;
+      background: var(--moss); color: #fff; border: none;
+      font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+      letter-spacing: 0.08em; cursor: none;
+      transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      position: relative; overflow: hidden;
+    }
+    .pay-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: translateX(-100%); transition: transform 0.55s ease;
+    }
+    .pay-btn:hover::before { transform: translateX(100%); }
+    .pay-btn:hover { background: var(--lime); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(74,140,63,0.35); }
+
+    /* PAYMENT MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 24px; padding: 40px;
+      width: 440px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+      animation: modalIn 0.3s cubic-bezier(0.23,1,0.32,1);
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.92) translateY(16px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.04em; color: var(--text-dark); margin-bottom: 6px; }
+    .modal-subtitle { font-size: 13px; color: var(--fog); font-weight: 300; margin-bottom: 28px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fog); display: block; margin-bottom: 7px; }
+    .form-input {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;
+      font-size: 14px; color: var(--text-dark); background: #fafaf8;
+      transition: border-color 0.2s ease; outline: none;
+    }
+    .form-input:focus { border-color: var(--moss); background: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .pay-method-btn {
+      padding: 12px 8px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: #fafaf8;
+      font-family: 'Space Mono', monospace; font-size: 10px;
+      letter-spacing: 0.04em; color: var(--fog); cursor: none;
+      transition: all 0.2s ease; text-align: center;
+    }
+    .pay-method-btn .method-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .pay-method-btn.selected { border-color: var(--moss); background: rgba(74,140,63,0.06); color: var(--moss); }
+    .pay-method-btn:hover:not(.selected) { border-color: rgba(74,140,63,0.4); }
+    .order-summary-mini { background: var(--bark); border-radius: 12px; padding: 14px; margin-bottom: 20px; }
+    .order-summary-mini-title { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fog); margin-bottom: 10px; }
+    .order-mini-item { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-mid); margin-bottom: 6px; }
+    .order-mini-item:last-child { margin-bottom: 0; }
+    .order-mini-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 600; color: var(--text-dark); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 8px; }
+    .order-mini-total span:last-child { color: var(--moss); }
+    .confirm-pay-btn {
+      width: 100%; padding: 16px; border-radius: 14px;
+      background: var(--moss); color: #fff; border: none;
+      font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+      letter-spacing: 0.08em; cursor: none; margin-bottom: 10px;
+      transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+    }
+    .confirm-pay-btn:hover { background: var(--lime); }
+    .modal-cancel-btn {
+      width: 100%; padding: 12px; border-radius: 14px;
+      background: transparent; color: var(--fog);
+      border: 1px solid var(--border);
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: none;
+      transition: all 0.2s ease;
+    }
+    .modal-cancel-btn:hover { border-color: var(--moss); color: var(--moss); }
+    .payment-success { text-align: center; padding: 20px 0; }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(74,140,63,0.1); display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 20px; font-size: 36px;
+    }
+    .success-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--moss); letter-spacing: 0.04em; margin-bottom: 8px; }
+    .success-desc { font-size: 14px; color: var(--fog); font-weight: 300; line-height: 1.7; }
+
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--text-dark); color: #fff;
+      padding: 12px 24px; border-radius: 40px;
+      font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+      z-index: 2000; transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ── Language Switcher — matches login.ejs style ── */
+    .lang-switcher {
+      display: flex; gap: 4px; align-items: center;
+      background: rgba(74,140,63,0.07);
+      border: 1px solid rgba(74,140,63,0.2);
+      border-radius: 20px; padding: 4px;
+    }
+    .lang-btn {
+      font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; padding: 5px 10px; border-radius: 14px;
+      border: none; background: transparent; color: var(--fog);
+      cursor: pointer; transition: all 0.25s ease;
+    }
+    .lang-btn.active,
+    .lang-btn:hover { background: var(--moss); color: #fff; }
+    .lang-btn.active { font-weight: 700; }
 
     @media (max-width: 640px) {
       .body-grid { grid-template-columns: 1fr; }
@@ -355,6 +516,7 @@
       .leaf-preview { width: 100%; height: 220px; }
       .page { padding: 100px 20px 60px; }
       .top-nav { padding: 16px 20px; }
+      .cart-drawer { width: 100%; }
     }
   </style>
 </head>
@@ -367,8 +529,15 @@
   <nav class="top-nav">
     <a href="/home" class="nav-brand" data-i18n="result.brand">PotatoScan</a>
     <div class="nav-right">
-      <div class="lang-switcher-slot"></div>
-      <a href="/home" class="back-btn" data-i18n="result.back.btn">← New Scan</a>
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn active" onclick="switchLang('en', this)">EN</button>
+        <button class="lang-btn" onclick="switchLang('hi', this)">HI</button>
+        <button class="lang-btn" onclick="switchLang('bn', this)">BN</button>
+      </div>
+      <button class="cart-nav-btn" onclick="openCart()">
+        Cart <span class="cart-count-badge" id="cartCountBadge">0</span>
+      </button>
+      <a href="/home" class="back-btn" data-i18n="result.back.btn">New Scan</a>
     </div>
   </nav>
 
@@ -414,8 +583,7 @@
         </div>
 
         <div class="diagnosis-card">
-          <span class="severity-badge sev-<%= sev %>"
-                data-i18n="result.sev.<%= sev %>">
+          <span class="severity-badge sev-<%= sev %>" data-i18n="result.sev.<%= sev %>">
             <%= sev === 'none' ? '✓ Healthy' : (sev === 'moderate' ? '⚠ Moderate Risk' : '✕ Severe Risk') %>
           </span>
           <div class="disease-name <%= col %>"
@@ -436,28 +604,25 @@
       </div>
 
       <div class="body-grid">
-        <%# Treatment card - text filled by JS from i18n dict %>
+        <%# Treatment card %>
         <div class="info-card">
           <div class="card-label" data-i18n="result.treatment.label">Recommended Treatment</div>
-          <p class="treatment-text"
-             data-i18n-treatment="<%= predClass %>">
+          <p class="treatment-text" data-i18n-treatment="<%= predClass %>">
             <%= result.treatment %>
           </p>
         </div>
 
-        <%# Precautions card - list filled by JS from i18n dict %>
+        <%# Precautions card %>
         <div class="info-card">
           <div class="card-label" data-i18n="result.precautions.label">Precautions</div>
-          <ul class="prec-list <%= precClass %>"
-              id="precList"
-              data-i18n-precautions="<%= predClass %>">
+          <ul class="prec-list <%= precClass %>" id="precList" data-i18n-precautions="<%= predClass %>">
             <% result.precautions.forEach(function(p) { %>
               <li><%= p %></li>
             <% }); %>
           </ul>
         </div>
 
-        <%# Medicines table card %>
+        <%# Medicines table — now includes Price and pack_size columns %>
         <% if (result.medicines && result.medicines.length > 0) { %>
         <div class="info-card" style="grid-column: 1 / -1;">
           <div class="card-label" data-i18n="result.medicines.label">Recommended Medicines</div>
@@ -467,14 +632,38 @@
                 <th data-i18n="result.medicines.col.name">Product Name</th>
                 <th data-i18n="result.medicines.col.chemical">Chemical</th>
                 <th data-i18n="result.medicines.col.dose">Dosage</th>
+                <th data-i18n="result.medicines.col.price">Price</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              <% result.medicines.forEach(function(med) { %>
+              <% result.medicines.forEach(function(med, idx) { %>
               <tr>
                 <td><span class="medicine-name"><%= med.name %></span></td>
                 <td><%= med.chemical %></td>
                 <td><%= med.dose %></td>
+                <td>
+                  <span class="medicine-price">Rs.<%= med.price %></span>
+                  <% if (med.pack_size) { %>
+                    <span class="medicine-pack"><%= med.pack_size %></span>
+                  <% } %>
+                </td>
+                <td>
+                  <button
+                    class="add-to-cart-btn"
+                    id="cartBtn-<%= idx %>"
+                    onclick="toggleCart(
+                      '<%= med.name.replace(/'/g, '\\x27') %>',
+                      '<%= med.chemical.replace(/'/g, '\\x27') %>',
+                      '<%= med.dose.replace(/'/g, '\\x27') %>',
+                      <%= med.price || 0 %>,
+                      '<%= (med.pack_size || '').replace(/'/g, '\\x27') %>',
+                      <%= idx %>
+                    )"
+                  >
+                    + Add
+                  </button>
+                </td>
               </tr>
               <% }); %>
             </tbody>
@@ -496,9 +685,7 @@
              var barColor = probColors[cls] || '#4a8c3f';
         %>
         <div class="prob-row">
-          <div class="prob-name"
-               data-i18n="disease.<%= cls %>"
-               data-disease-raw="<%= cls %>">
+          <div class="prob-name" data-i18n="disease.<%= cls %>" data-disease-raw="<%= cls %>">
             <%= cls %>
           </div>
           <div class="prob-track">
@@ -511,7 +698,7 @@
       <% } %>
 
       <div class="actions">
-        <a href="/home" class="btn btn-primary" data-i18n="result.analyze.btn">⬡ Analyze Another</a>
+        <a href="/home" class="btn btn-primary" data-i18n="result.analyze.btn">Analyze Another</a>
         <button class="btn btn-outline" onclick="window.print()" data-i18n="result.save.btn">Save Report</button>
       </div>
 
@@ -532,11 +719,113 @@
 
   </div>
 
-  <%# Load i18n engine - adjust path to match your static assets setup %>
+  <%# Cart Overlay and Drawer %>
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <span class="cart-title">Your Cart</span>
+      <button class="cart-close-btn" onclick="closeCart()">x</button>
+    </div>
+    <div class="cart-body" id="cartBody">
+      <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <p>Your cart is empty.<br>Add medicines from the table above.</p>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none;">
+      <div class="cart-summary" id="cartSummary"></div>
+      <button class="pay-btn" onclick="openPaymentModal()">Proceed to Payment</button>
+    </div>
+  </div>
+
+  <%# Payment Modal %>
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-box" id="modalBox">
+
+      <div id="paymentForm">
+        <div class="modal-title">Checkout</div>
+        <div class="modal-subtitle">Complete your order for the recommended medicines.</div>
+
+        <div class="order-summary-mini" id="modalOrderSummary"></div>
+
+        <div style="margin-bottom:18px;">
+          <div class="form-label">Payment Method</div>
+          <div class="payment-methods">
+            <button class="pay-method-btn selected" onclick="selectPayMethod(this,'card')">
+              <span class="method-icon">💳</span>Card
+            </button>
+            <button class="pay-method-btn" onclick="selectPayMethod(this,'upi')">
+              <span class="method-icon">📱</span>UPI
+            </button>
+            <button class="pay-method-btn" onclick="selectPayMethod(this,'cod')">
+              <span class="method-icon">💵</span>Cash on Delivery
+            </button>
+          </div>
+        </div>
+
+        <div id="cardFields">
+          <div class="form-group">
+            <label class="form-label">Cardholder Name</label>
+            <input type="text" class="form-input" id="cardName" placeholder="Rahul Kumar" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Expiry</label>
+              <input type="text" class="form-input" id="cardExpiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVV</label>
+              <input type="password" class="form-input" id="cardCvv" placeholder="..." maxlength="3" />
+            </div>
+          </div>
+        </div>
+
+        <div id="upiFields" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">UPI ID</label>
+            <input type="text" class="form-input" id="upiId" placeholder="yourname@upi" />
+          </div>
+        </div>
+
+        <div id="codFields" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Delivery Address</label>
+            <input type="text" class="form-input" id="codAddress" placeholder="Village / Town, District, State" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-input" id="codPhone" placeholder="+91 9876543210" />
+          </div>
+        </div>
+
+        <button class="confirm-pay-btn" onclick="confirmPayment()">Confirm and Pay</button>
+        <button class="modal-cancel-btn" onclick="closePaymentModal()">Cancel</button>
+      </div>
+
+      <div id="paymentSuccess" class="payment-success" style="display:none;">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Order Placed!</div>
+        <p class="success-desc">
+          Your medicines have been ordered successfully.<br>
+          You will receive a confirmation shortly.
+        </p>
+        <button class="confirm-pay-btn" style="margin-top:28px;" onclick="closeAll()">Done</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <%# Load i18n engine %>
   <script src="/js/i18n.js"></script>
 
   <script>
-    // Cursor
+    // ── Cursor ────────────────────────────────────────────────
     const cursor = document.getElementById('cursor');
     const ring   = document.getElementById('cursorRing');
     let mx = 0, my = 0, rx = 0, ry = 0;
@@ -557,7 +846,7 @@
       el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
     });
 
-    // Animate bars on load
+    // ── Animate confidence / probability bars on load ─────────
     window.addEventListener('load', () => {
       const confBar = document.getElementById('confBar');
       if (confBar) setTimeout(() => { confBar.style.width = '<%= result ? result.confidence : 0 %>%'; }, 300);
@@ -566,51 +855,227 @@
       });
     });
 
-    // i18n: translate dynamic content on language change
-    //
-    // After standard [data-i18n] keys are applied by i18n.js,
-    // we also need to re-render:
-    //   1. Treatment text  (data-i18n-treatment="<disease>")
-    //   2. Precautions list (data-i18n-precautions="<disease>")
-    //
-    // These contain arrays/strings keyed by disease name, not
-    // simple string keys, so we handle them here separately.
-    //
+    // ── i18n ──────────────────────────────────────────────────
     function applyDynamicTranslations(lang) {
       const tr = (i18n && i18n.translations) ? i18n.translations : null;
       if (!tr) return;
-
-      // 1. Treatment text
       document.querySelectorAll('[data-i18n-treatment]').forEach(el => {
         const disease = el.dataset.i18nTreatment;
         const key = 'treatment.' + disease;
-        if (tr[key] && tr[key][lang]) {
-          el.textContent = tr[key][lang];
-        } else if (tr[key] && tr[key]['en']) {
-          el.textContent = tr[key]['en'];
-        }
+        if (tr[key] && tr[key][lang]) el.textContent = tr[key][lang];
+        else if (tr[key] && tr[key]['en']) el.textContent = tr[key]['en'];
       });
-
-      // 2. Precautions list
       document.querySelectorAll('[data-i18n-precautions]').forEach(el => {
         const disease = el.dataset.i18nPrecautions;
         const key = 'precautions.' + disease;
         if (!tr[key]) return;
         const items = tr[key][lang] || tr[key]['en'];
         if (!Array.isArray(items)) return;
-        el.innerHTML = items.map(p => `<li>${p}</li>`).join('');
+        el.innerHTML = items.map(p => '<li>' + p + '</li>').join('');
       });
     }
+    document.addEventListener('i18n:applied', e => applyDynamicTranslations(e.detail.lang));
+    if (typeof i18n !== 'undefined') applyDynamicTranslations(i18n.currentLang());
 
-    // Hook into i18n lifecycle
-    document.addEventListener('i18n:applied', e => {
-      applyDynamicTranslations(e.detail.lang);
-    });
+    // ── CART ──────────────────────────────────────────────────
+    // Prices come directly from the server via toggleCart() arguments.
+    // No client-side price table needed — the API payload is the source of truth.
+    var cart = [];
+    var selectedPayMethod = 'card';
 
-    // Run once immediately for the current language
-    if (typeof i18n !== 'undefined') {
-      applyDynamicTranslations(i18n.currentLang());
+    /**
+     * toggleCart — called by each "Add" button in the medicines table.
+     *
+     * @param {string} name      — medicine name
+     * @param {string} chemical  — active ingredient string
+     * @param {string} dose      — dosage string
+     * @param {number} price     — price in INR from server (med.price)
+     * @param {string} packSize  — pack size label (med.pack_size)
+     * @param {number} idx       — row index for button ID lookup
+     */
+    function toggleCart(name, chemical, dose, price, packSize, idx) {
+      var existingIndex = cart.findIndex(function(i) { return i.name === name; });
+      var btn = document.getElementById('cartBtn-' + idx);
+      if (existingIndex >= 0) {
+        cart.splice(existingIndex, 1);
+        btn.textContent = '+ Add';
+        btn.classList.remove('in-cart');
+        showToast(name + ' removed from cart');
+      } else {
+        cart.push({
+          name:     name,
+          chemical: chemical,
+          dose:     dose,
+          price:    price,       // actual price from DB via API
+          packSize: packSize,
+          qty:      1,
+          btnIdx:   idx
+        });
+        btn.textContent = 'Added ✓';
+        btn.classList.add('in-cart');
+        showToast(name + ' added — Rs.' + price);
+      }
+      updateCartUI();
     }
+
+    function updateCartUI() {
+      var badge = document.getElementById('cartCountBadge');
+      badge.textContent = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+      var body    = document.getElementById('cartBody');
+      var footer  = document.getElementById('cartFooter');
+      var summary = document.getElementById('cartSummary');
+
+      if (cart.length === 0) {
+        body.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Your cart is empty.<br>Add medicines from the table above.</p></div>';
+        footer.style.display = 'none';
+        return;
+      }
+      footer.style.display = 'block';
+      body.innerHTML = cart.map(function(item, i) {
+        return '<div class="cart-item">' +
+          '<div class="cart-item-info">' +
+            '<div class="cart-item-name">' + item.name + '</div>' +
+            '<div class="cart-item-chemical">' + item.chemical + '</div>' +
+            '<div class="cart-item-dose">' + item.dose +
+              (item.packSize ? ' · ' + item.packSize : '') + '</div>' +
+            '<div class="cart-item-controls">' +
+              '<button class="qty-btn" onclick="changeQty(' + i + ',-1)">-</button>' +
+              '<span class="qty-display">' + item.qty + '</span>' +
+              '<button class="qty-btn" onclick="changeQty(' + i + ',1)">+</button>' +
+              '<button class="remove-item-btn" onclick="removeItem(' + i + ')">Remove</button>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--moss);font-weight:600;white-space:nowrap;">Rs.' + (item.price * item.qty) + '</div>' +
+        '</div>';
+      }).join('');
+
+      var subtotal = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+      var shipping = subtotal > 0 ? 49 : 0;
+      var total    = subtotal + shipping;
+      summary.innerHTML =
+        '<div class="cart-summary-row"><span>Subtotal</span><span>Rs.' + subtotal + '</span></div>' +
+        '<div class="cart-summary-row"><span>Shipping</span><span>Rs.' + shipping + '</span></div>' +
+        '<div class="cart-summary-row total"><span>Total</span><span>Rs.' + total + '</span></div>';
+    }
+
+    function changeQty(index, delta) {
+      cart[index].qty = Math.max(1, cart[index].qty + delta);
+      updateCartUI();
+    }
+
+    function removeItem(index) {
+      var item = cart[index];
+      var btn = document.getElementById('cartBtn-' + item.btnIdx);
+      if (btn) { btn.textContent = '+ Add'; btn.classList.remove('in-cart'); }
+      cart.splice(index, 1);
+      updateCartUI();
+      showToast(item.name + ' removed from cart');
+    }
+
+    function openCart() {
+      document.getElementById('cartOverlay').classList.add('open');
+      document.getElementById('cartDrawer').classList.add('open');
+    }
+    function closeCart() {
+      document.getElementById('cartOverlay').classList.remove('open');
+      document.getElementById('cartDrawer').classList.remove('open');
+    }
+
+    function openPaymentModal() {
+      if (cart.length === 0) return;
+      var subtotal = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+      var shipping = 49;
+      var total = subtotal + shipping;
+      var summaryEl = document.getElementById('modalOrderSummary');
+      summaryEl.innerHTML =
+        '<div class="order-summary-mini-title">Order Summary</div>' +
+        cart.map(function(i) {
+          return '<div class="order-mini-item"><span>' + i.name + ' x' + i.qty + '</span><span>Rs.' + (i.price * i.qty) + '</span></div>';
+        }).join('') +
+        '<div class="order-mini-item"><span>Shipping</span><span>Rs.' + shipping + '</span></div>' +
+        '<div class="order-mini-total"><span>Total</span><span>Rs.' + total + '</span></div>';
+      document.getElementById('paymentForm').style.display = 'block';
+      document.getElementById('paymentSuccess').style.display = 'none';
+      document.getElementById('paymentModal').classList.add('open');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('open');
+    }
+
+    function selectPayMethod(btn, method) {
+      selectedPayMethod = method;
+      document.querySelectorAll('.pay-method-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      document.getElementById('cardFields').style.display = method === 'card' ? 'block' : 'none';
+      document.getElementById('upiFields').style.display  = method === 'upi'  ? 'block' : 'none';
+      document.getElementById('codFields').style.display  = method === 'cod'  ? 'block' : 'none';
+    }
+
+    function formatCard(el) {
+      var v = el.value.replace(/\D/g, '').substring(0, 16);
+      el.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+    function formatExpiry(el) {
+      var v = el.value.replace(/\D/g, '').substring(0, 4);
+      if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2);
+      el.value = v;
+    }
+
+    function confirmPayment() {
+      if (selectedPayMethod === 'card') {
+        var num = document.getElementById('cardNumber').value.replace(/\s/g,'');
+        if (!document.getElementById('cardName').value.trim() || num.length < 16) {
+          showToast('Please fill in all card details'); return;
+        }
+      } else if (selectedPayMethod === 'upi') {
+        if (!document.getElementById('upiId').value.includes('@')) {
+          showToast('Please enter a valid UPI ID'); return;
+        }
+      } else if (selectedPayMethod === 'cod') {
+        if (!document.getElementById('codAddress').value.trim() || !document.getElementById('codPhone').value.trim()) {
+          showToast('Please fill in delivery details'); return;
+        }
+      }
+      document.getElementById('paymentForm').style.display = 'none';
+      document.getElementById('paymentSuccess').style.display = 'block';
+    }
+
+    function closeAll() {
+      closePaymentModal();
+      closeCart();
+      cart.forEach(function(item) {
+        var btn = document.getElementById('cartBtn-' + item.btnIdx);
+        if (btn) { btn.textContent = '+ Add'; btn.classList.remove('in-cart'); }
+      });
+      cart = [];
+      updateCartUI();
+    }
+
+    var toastTimer;
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2200);
+    }
+
+    // ── Language switcher ─────────────────────────────────────
+    function switchLang(lang, btn) {
+      document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (typeof i18n !== 'undefined' && i18n.setLang) {
+        i18n.setLang(lang);
+      }
+    }
+    // Sync active button to whatever lang i18n already has on load
+    document.addEventListener('i18n:applied', function(e) {
+      var lang = e.detail.lang;
+      document.querySelectorAll('.lang-btn').forEach(function(b) {
+        b.classList.toggle('active', b.textContent.trim().toLowerCase() === lang.toLowerCase());
+      });
+    });
   </script>
 
 </body>
