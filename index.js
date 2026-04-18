@@ -20,6 +20,8 @@ const SALT_ROUNDS = 10;
 const FLASK_URL   = process.env.FLASK_URL || 'http://localhost:5000';
 const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
 
+const TRIAL_SCAN_LIMIT = 3;
+
 
 // ── Database ──────────────────────────────────────────────────────────────────
 const client = new Client({
@@ -31,7 +33,19 @@ const client = new Client({
 });
 
 client.connect()
-    .then(() => console.log('✅ Connected to PostgreSQL'))
+    .then(async () => {
+        console.log('✅ Connected to PostgreSQL');
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS trial_scans (
+                phone       VARCHAR(15) PRIMARY KEY,
+                name        VARCHAR(100) NOT NULL,
+                scans_used  INT          NOT NULL DEFAULT 0,
+                first_seen  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                last_seen   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('✅ trial_scans table ready');
+    })
     .catch(err => { console.error('❌ DB connection failed:', err.message); process.exit(1); });
 
 
@@ -131,6 +145,26 @@ const isAuth = (req, res, next) => {
     res.redirect('/');
 };
 
+// ── Trial Valid Middleware ────────────────────────────────────────────────────
+const isTrialValid = async (req, res, next) => {
+    if (!req.session.user?.isTrial) return next();
+    try {
+        const row = await client.query(
+            'SELECT scans_used FROM trial_scans WHERE phone = $1',
+            [req.session.user.phone]
+        );
+        const scansUsed = row.rows.length > 0 ? row.rows[0].scans_used : 0;
+        if (scansUsed >= TRIAL_SCAN_LIMIT) {
+            req.session.destroy(() => {});
+            return res.redirect('/?trial=exhausted');
+        }
+        next();
+    } catch (err) {
+        console.error('Trial validation error:', err.message);
+        res.redirect('/');
+    }
+};
+
 
 // ── Passport: Local Strategy ──────────────────────────────────────────────────
 passport.use(new LocalStrategy(
@@ -161,8 +195,6 @@ passport.use(new LocalStrategy(
 
 
 // ── Passport: Google OAuth Strategy ──────────────────────────────────────────
-// ★ isNewGoogleUser is attached to the user object so the callback
-//   route knows whether to send a welcome email (new signup only).
 passport.use(new GoogleStrategy(
     {
         clientID:     process.env.GOOGLE_CLIENT_ID,
@@ -180,13 +212,11 @@ passport.use(new GoogleStrategy(
             );
 
             if (existing.rows.length > 0) {
-                // Returning user — no welcome email
                 const user = existing.rows[0];
                 user.isNewGoogleUser = false;
                 return done(null, user);
             }
 
-            // Brand new Google user — insert and flag for welcome email
             const newUser = await client.query(
                 `INSERT INTO users (firstname, lastname, email, password, phone, location, terms_accepted)
                  VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
@@ -223,16 +253,22 @@ app.get('/', (req, res) => {
     res.render('Login_multilang.ejs');
 });
 
-// GET /home — pass full user object to EJS
-app.get('/home', isAuth, async (req, res) => {
+// GET /home
+app.get('/home', isAuth, isTrialValid, async (req, res) => {
     try {
-        // Trial users have no DB record — build a fake user object
         if (req.session.user.isTrial) {
+            const trialRow = await client.query(
+                'SELECT scans_used FROM trial_scans WHERE phone = $1',
+                [req.session.user.phone]
+            );
+            const scansUsed = trialRow.rows.length > 0 ? trialRow.rows[0].scans_used : 0;
             const user = {
-                firstname:    req.session.user.name,
-                lastname:     '',
-                email:        null,
-                isTrial:      true,
+                firstname: req.session.user.name,
+                lastname:  '',
+                email:     null,
+                isTrial:   true,
+                scansUsed,
+                scansLeft: TRIAL_SCAN_LIMIT - scansUsed,
             };
             return res.render('index_multilang.ejs', { user });
         }
@@ -240,8 +276,7 @@ app.get('/home', isAuth, async (req, res) => {
         const result = await client.query(
             'SELECT * FROM users WHERE id = $1', [req.session.user.id]
         );
-        const user = result.rows[0];
-        res.render('index_multilang.ejs', { user });
+        res.render('index_multilang.ejs', { user: result.rows[0] });
     } catch (err) {
         console.error('Home route error:', err.message);
         res.redirect('/');
@@ -279,7 +314,6 @@ app.post('/signup', async (req, res) => {
             [firstname, lastname, email, hashedPassword, phone, location, terms_accepted ? true : false]
         );
 
-        // Send welcome email (non-blocking)
         sendWelcomeEmail(email, firstname);
 
         req.session.save(err => {
@@ -338,7 +372,6 @@ app.get('/auth/google',
 );
 
 // GET /auth/google/callback
-// ★ Sends welcome email only for brand new Google signups
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
@@ -353,31 +386,74 @@ app.get('/auth/google/callback',
         res.redirect('/home');
     }
 );
-//trial 
-// POST /trial — guest trial access (no DB, just name + phone)
-app.post('/trial', (req, res) => {
-    
-    const trialname  = decodeURIComponent(req.body.trialname  || '');
-    const trialphone = decodeURIComponent(req.body.trialphone || '');
-    // rest stays the same
 
+
+// ── POST /trial ───────────────────────────────────────────────────────────────
+app.post('/trial', async (req, res) => {
+    const trialname  = (req.body.trialname  || '').trim();
+    const trialphone = (req.body.trialphone || '').replace(/\s/g, '');
+
+    console.log('📋 Trial POST received:', { trialname, trialphone });
 
     if (!trialname || !trialphone)
         return res.status(400).send('Name and phone are required.');
 
-    if (!/^\d{10}$/.test(trialphone.replace(/\s/g, '')))
+    if (!/^\d{10}$/.test(trialphone)) {
+        console.log('❌ Phone validation failed for:', trialphone);
         return res.status(400).send('Enter a valid 10-digit phone number.');
+    }
 
-    req.session.regenerate(err => {
-        if (err) return res.status(500).send('Session error.');
-        req.session.user = {
-            id:       null,
-            name:     trialname,
-            isTrial:  true,
-        };
-        res.redirect('/home');
-    });
+    try {
+        const existing = await client.query(
+            'SELECT scans_used FROM trial_scans WHERE phone = $1',
+            [trialphone]
+        );
+        console.log('🔍 DB lookup result:', existing.rows);
+
+        if (existing.rows.length > 0) {
+            const scansUsed = existing.rows[0].scans_used;
+
+            if (scansUsed >= TRIAL_SCAN_LIMIT) {
+                console.log('🚫 Trial limit reached for:', trialphone);
+                return res.redirect('/?trial=exhausted');
+            }
+
+            // Returning trial user — update name and last_seen
+            await client.query(
+                `UPDATE trial_scans
+                 SET name = $1, last_seen = CURRENT_TIMESTAMP
+                 WHERE phone = $2`,
+                [trialname, trialphone]
+            );
+            console.log('✅ Updated existing trial user:', trialphone);
+
+        } else {
+            // First time — insert with 0 scans
+            await client.query(
+                `INSERT INTO trial_scans (phone, name, scans_used)
+                 VALUES ($1, $2, 0)`,
+                [trialphone, trialname]
+            );
+            console.log('✅ Inserted new trial user:', trialphone);
+        }
+
+        req.session.regenerate(err => {
+            if (err) return res.status(500).send('Session error.');
+            req.session.user = {
+                id:      null,
+                name:    trialname,
+                phone:   trialphone,
+                isTrial: true,
+            };
+            res.redirect('/home');
+        });
+
+    } catch (err) {
+        console.error('❌ Trial DB error:', err.message);
+        res.status(500).send('Server error.');
+    }
 });
+
 
 // GET /logout
 app.get('/logout', (req, res) => {
@@ -392,8 +468,9 @@ app.get('/result', (req, res) => {
     res.render('result.ejs', { result: null, error: null, imageUrl: null });
 });
 
-// POST /analyze — receive image, forward to Flask, render result
-app.post('/analyze', isAuth, upload.single('leafImage'), async (req, res) => {
+
+// ── POST /analyze ─────────────────────────────────────────────────────────────
+app.post('/analyze', isAuth, isTrialValid, upload.single('leafImage'), async (req, res) => {
     if (!req.file) {
         return res.render('result.ejs', {
             result: null,
@@ -404,6 +481,45 @@ app.post('/analyze', isAuth, upload.single('leafImage'), async (req, res) => {
 
     const savedFilePath = req.file.path;
     const imageUrl      = '/uploads/' + req.file.filename;
+
+    // ── Trial scan gate ───────────────────────────────────────────────────────
+    if (req.session.user.isTrial) {
+        const phone = req.session.user.phone;
+        try {
+            const row = await client.query(
+                'SELECT scans_used FROM trial_scans WHERE phone = $1',
+                [phone]
+            );
+            const scansUsed = row.rows.length > 0 ? row.rows[0].scans_used : 0;
+
+            if (scansUsed >= TRIAL_SCAN_LIMIT) {
+                fs.unlink(savedFilePath, () => {});
+                req.session.destroy(() => {});
+                return res.redirect('/?trial=exhausted');
+            }
+
+            // Increment BEFORE calling Flask
+            await client.query(
+                `UPDATE trial_scans
+                 SET scans_used = scans_used + 1,
+                     last_seen  = CURRENT_TIMESTAMP
+                 WHERE phone = $1`,
+                [phone]
+            );
+            console.log(`📸 Trial scan ${scansUsed + 1}/${TRIAL_SCAN_LIMIT} used for:`, phone);
+
+            req.session.user.scansUsed = scansUsed + 1;
+
+        } catch (dbErr) {
+            console.error('Trial scan DB error:', dbErr.message);
+            fs.unlink(savedFilePath, () => {});
+            return res.render('result.ejs', {
+                result: null, imageUrl: null,
+                error: 'Server error while checking trial quota.',
+            });
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     try {
         const form = new FormData();
