@@ -1,16 +1,135 @@
-Developed jointly by : Debarghya Sengupta & Ishita Das.
+# PotatoScan — AI-Powered Potato Leaf Disease Detection
 
+> Developed jointly by **Debarghya Sengupta** & **Ishita Das**
 
-PotatoGuard: AI-Powered Autonomous Crop Protection
-PotatoGuard is an integrated Precision Agriculture ecosystem that automates the detection and treatment of potato leaf diseases. By combining Computer Vision (AI), and Cloud Notifications, it transforms traditional reactive farming into a proactive, autonomous defense system.
+PotatoScan is a precision agriculture web application that automates the detection of potato leaf diseases using Computer Vision and Deep Learning. By combining a trained CNN model with a multi-lingual interface and instant farmer alerts, it transforms traditional reactive farming into a proactive, intelligent crop protection system.
 
-🌟 Key Features
-Multi-lingual support: Our website supports three language english,hindi and bengali with the help of The "Crowdsourced" JSON Method (Recommended).
+---
 
-🧠 AI-Driven Diagnosis: A Deep Learning model (CNN) classifies images into categories such as Healthy, Early Blight, or Late Blight with high confidence.
+## 🌟 Key Features
 
-💊 Precision Remediation: Upon disease detection, the system provides specific chemical or organic remedies and automatically triggers field-side spraying actuators.
+### 🌐 Multi-lingual Support
+The platform supports three languages — **English**, **Hindi**, and **Bengali** — using the Crowdsourced JSON method, making it accessible to farmers across regions.
 
-📧 Instant Farmer Alerts: Automated email reports containing the diagnosis, the captured image, and the action taken are sent via SMTP.
+### 🧠 AI-Driven Diagnosis
+A Deep Learning model (CNN) analyzes uploaded leaf images and classifies them into:
+- ✅ **Healthy**
+- 🟡 **Early Blight**
+- 🔴 **Late Blight**
 
-📊 Real-time Dashboard: A web-based interface for farmers to track field health history, sensor data, and manual spray overrides.
+Each result comes with a confidence score for transparency.
+
+### 💊 Precision Remediation
+Upon disease detection, the system provides targeted **chemical or organic treatment recommendations** tailored to the identified disease, helping farmers act quickly and effectively.
+
+### 📧 Instant Farmer Alerts
+Automated welcome and diagnostic email reports are sent via SMTP (Nodemailer + Gmail), keeping farmers informed at every step.
+
+### 📊 Real-time Dashboard
+A web-based interface allows farmers to:
+- Upload leaf images for instant diagnosis
+- View past scan history
+- Track field health over time
+- Access treatment recommendations
+
+### 🔒 Flexible Access
+- **Registered users** get full dashboard access and scan history
+- **Trial users** can scan up to 3 images using just their name and phone number — no account required
+- **Google OAuth** support for seamless sign-in
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | HTML, CSS, EJS, JavaScript |
+| Backend | Node.js, Express.js |
+| ML Model | Python, Flask, TensorFlow/Keras (CNN) |
+| Database | PostgreSQL |
+| Auth | Passport.js (Local + Google OAuth 2.0) |
+| Email | Nodemailer (Gmail SMTP) |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js v18+
+- Python 3.9+
+- PostgreSQL
+- A Gmail account with App Password enabled
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/Debarghyasg/Potato-Leaf-Disease-prediction
+cd Potato-Leaf-Disease-prediction
+```
+
+### 2. Install Node dependencies
+```bash
+npm install
+```
+
+### 3. Install Python dependencies
+```bash
+pip install flask tensorflow numpy pillow
+```
+
+### 4. Set up environment variables
+Create a `.env` file in the root directory:
+```env
+SESSION_SECRET=your_session_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+EMAIL_USER=your_gmail@gmail.com
+EMAIL_PASS=your_app_password
+FLASK_URL=http://localhost:5000
+```
+
+### 5. Set up PostgreSQL
+```sql
+CREATE DATABASE "Potato-Disease";
+```
+Then run the table creation queries from the project's SQL schema file.
+
+### 6. Start the Flask ML server
+```bash
+python app.py
+```
+
+### 7. Start the Node server
+```bash
+node server.js
+```
+
+Visit `http://localhost:3000` to access the application.
+
+---
+
+## 📁 Project Structure
+
+```
+├── public/
+│   ├── uploads/          # Uploaded leaf images
+│   └── js/
+│       └── i18n.js       # Multi-language support
+├── views/
+│   ├── Login_multilang.ejs
+│   ├── signup_multilang.ejs
+│   ├── index_multilang.ejs
+│   └── result.ejs
+├── server.js             # Express backend
+├── app.py                # Flask ML server
+└── .env
+```
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
+
+---
+
+*Built with 🌿 to help farmers protect their crops using the power of AI.*
