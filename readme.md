@@ -1,40 +1,47 @@
-# PotatoScan — AI-Powered Potato Leaf Disease Detection
+# 🥔 PotatoScan — AI-Powered Potato Leaf Disease Detection
 
 > Developed jointly by **Debarghya Sengupta** & **Ishita Das**
 
-PotatoScan is a precision agriculture web application that automates the detection of potato leaf diseases using Computer Vision and Deep Learning. By combining a trained CNN model with a multi-lingual interface and instant farmer alerts, it transforms traditional reactive farming into a proactive, intelligent crop protection system.
+PotatoScan is a precision agriculture web application that automates the detection of potato leaf diseases using **Computer Vision** and **Deep Learning**. By combining a trained CNN model capable of identifying **7 distinct disease classes** with a multi-lingual interface and instant farmer alerts, it transforms traditional reactive farming into a proactive, intelligent crop protection system.
 
 ---
 
 ## 🌟 Key Features
 
 ### 🌐 Multi-lingual Support
-The platform supports three languages — **English**, **Hindi**, and **Bengali** — using the Crowdsourced JSON method, making it accessible to farmers across regions.
+The platform supports three languages — **English**, **Hindi**, and **Bengali** — using the Crowdsourced JSON method, making it accessible to farmers across diverse regions.
 
-### 🧠 AI-Driven Diagnosis
-A Deep Learning model (CNN) analyzes uploaded leaf images and classifies them into:
-- ✅ **Healthy**
-- 🟡 **Early Blight**
-- 🔴 **Late Blight**
+### 🧠 AI-Driven Diagnosis (97% Accuracy)
+A Deep Learning model (CNN) analyzes uploaded leaf images and classifies them into **7 categories**:
 
-Each result comes with a confidence score for transparency.
+| Class | Description |
+|-------|-------------|
+| ✅ Healthy | No disease detected |
+| 🦠 Bacteria | Bacterial leaf infection |
+| 🍄 Fungi | Fungal disease (e.g., blight, mold) |
+| 🪱 Nematode | Root/leaf nematode infestation |
+| 🐛 Pest | Pest-related leaf damage |
+| 💧 Phytophthora | Late blight / water mold infection |
+| 🔬 Virus | Viral disease (e.g., mosaic virus) |
+
+Each result comes with a **confidence score** for full transparency.
 
 ### 💊 Precision Remediation
-Upon disease detection, the system provides targeted **chemical or organic treatment recommendations** tailored to the identified disease, helping farmers act quickly and effectively.
+Upon disease detection, the system provides **targeted chemical or organic treatment recommendations** tailored to the identified disease class, helping farmers act quickly and effectively.
 
 ### 📧 Instant Farmer Alerts
-Automated welcome and diagnostic email reports are sent via SMTP (Nodemailer + Gmail), keeping farmers informed at every step.
+Automated welcome and diagnostic email reports are sent via **SMTP (Nodemailer + Gmail)**, keeping farmers informed at every step of the scan process.
 
 ### 📊 Real-time Dashboard
 A web-based interface allows farmers to:
-- Upload leaf images for instant diagnosis
-- View past scan history
-- Track field health over time
-- Access treatment recommendations
+- Upload leaf images for **instant AI diagnosis**
+- View **past scan history**
+- Track **field health** over time
+- Access **treatment recommendations** per disease
 
 ### 🔒 Flexible Access
 - **Registered users** get full dashboard access and scan history
-- **Trial users** can scan up to 3 images using just their name and phone number — no account required
+- **Trial users** can scan up to **3 images** using just their name and phone number — no account required
 - **Google OAuth** support for seamless sign-in
 
 ---
@@ -42,7 +49,7 @@ A web-based interface allows farmers to:
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
-|---|---|
+|-------|------------|
 | Frontend | HTML, CSS, EJS, JavaScript |
 | Backend | Node.js, Express.js |
 | ML Model | Python, Flask, TensorFlow/Keras (CNN) |
@@ -132,4 +139,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ---
 
-*Built with 🌿 to help farmers protect their crops using the power of AI.*
+Built with 🌿 to help farmers protect their crops using the power of AI.
