@@ -154,7 +154,6 @@
   .error-banner { display:none;align-items:center;gap:10px;padding:13px 16px;background:rgba(192,57,43,0.07);border:1px solid rgba(192,57,43,0.25);border-radius:11px;margin-bottom:16px;font-size:13px;color:var(--error); }
   .error-banner.show { display:flex; }
 
-  /* ── Trial exhausted banner ── */
   .trial-exhausted-banner { display:none;flex-direction:column;gap:10px;padding:16px 18px;background:rgba(58,125,50,0.06);border:1.5px solid rgba(58,125,50,0.28);border-radius:14px;margin-bottom:20px;animation:slideIn 0.4s cubic-bezier(0.23,1,0.32,1) both; }
   .trial-exhausted-banner.show { display:flex; }
   .teb-head { display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--moss); }
@@ -190,36 +189,36 @@
 <div class="trial-modal-overlay" id="trialOverlay">
   <div class="trial-modal">
     <button class="trial-close" onclick="closeTrial()">✕</button>
-    <div class="trial-badge">⚡ Free Trial</div>
-    <div class="trial-title">Try It<br><span>Free</span></div>
-    <p class="trial-desc">No account needed. Just enter your name and phone to get instant access.</p>
+    <div class="trial-badge" data-i18n="trial.badge">⚡ Free Trial</div>
+    <div class="trial-title"><span data-i18n="trial.title1">Try It</span><br><span data-i18n="trial.title2">Free</span></div>
+    <p class="trial-desc" data-i18n="trial.desc">No account needed. Just enter your name and phone to get instant access.</p>
     <form id="trialForm" novalidate>
       <div class="field-group" id="fg-trialname" style="margin-bottom:18px">
-        <div class="field-label">Your Name</div>
+        <div class="field-label" data-i18n="trial.name.label">Your Name</div>
         <div class="input-wrap">
           <span class="i-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-          <input type="text" id="trialName" placeholder="e.g. Arjun" autocomplete="given-name">
+          <input type="text" id="trialName" data-i18n-ph="trial.name.ph" placeholder="e.g. Arjun" autocomplete="given-name">
           <span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
         </div>
-        <div class="err-msg" id="trialNameErr">Please enter your name</div>
+        <div class="err-msg" id="trialNameErr" data-i18n="trial.name.err">Please enter your name</div>
       </div>
       <div class="field-group" id="fg-trialphone" style="margin-bottom:18px">
-        <div class="field-label">Phone Number</div>
+        <div class="field-label" data-i18n="trial.phone.label">Phone Number</div>
         <div class="input-wrap">
           <span class="i-icon" style="font-size:13px;font-weight:500;color:var(--text-mid);left:14px">+91</span>
-          <input type="tel" id="trialPhone" placeholder="98765 43210" maxlength="10" style="padding-left:52px" autocomplete="tel">
+          <input type="tel" id="trialPhone" data-i18n-ph="trial.phone.ph" placeholder="98765 43210" maxlength="10" style="padding-left:52px" autocomplete="tel">
           <span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
         </div>
-        <div class="err-msg" id="trialPhoneErr">Enter a valid 10-digit number</div>
+        <div class="err-msg" id="trialPhoneErr" data-i18n="trial.phone.err">Enter a valid 10-digit number</div>
       </div>
       <button type="submit" class="signin-btn" id="trialSubmitBtn">
         <div class="btn-inner">
           <div class="btn-spinner" id="trialSpinner"></div>
-          <span id="trialBtnText">Start Free Trial →</span>
+          <span id="trialBtnText" data-i18n="trial.btn">Start Free Trial →</span>
         </div>
       </button>
     </form>
-    <p class="trial-note">No password · No email · Scan up to 3 images</p>
+    <p class="trial-note" data-i18n="trial.note">No password · No email · Scan up to 3 images</p>
   </div>
 </div>
 
@@ -242,19 +241,19 @@
       <span class="logo-text">PotatoScan</span>
     </a>
     <div class="lang-switcher" id="leftLangSwitcher">
-      <button class="lang-btn active" onclick="switchLang('en')">EN</button>
-      <button class="lang-btn" onclick="switchLang('hi')">HI</button>
-      <button class="lang-btn" onclick="switchLang('bn')">BN</button>
+      <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+      <button class="lang-btn" data-lang="hi" onclick="switchLang('hi')">HI</button>
+      <button class="lang-btn" data-lang="bn" onclick="switchLang('bn')">BN</button>
     </div>
   </div>
 
   <div class="panel-inner">
     <div class="panel-headline">Welcome<br><span class="muted">Back to</span> PotatoScan</div>
-    <p class="panel-desc">Sign in to access your dashboard, view past diagnoses, and protect your potato crops with AI precision.</p>
+    <p class="panel-desc" data-i18n="login.panel.desc">Sign in to access your dashboard, view past diagnoses, and protect your potato crops with AI precision.</p>
     <div class="stats-row">
-      <div class="stat"><div class="stat-num">97.4%</div><div class="stat-lbl">Accuracy</div></div>
-      <div class="stat"><div class="stat-num">&lt;2s</div><div class="stat-lbl">Analysis</div></div>
-      <div class="stat"><div class="stat-num">50K+</div><div class="stat-lbl">Scans Done</div></div>
+      <div class="stat"><div class="stat-num">97.4%</div><div class="stat-lbl" data-i18n="login.stat.accuracy">Accuracy</div></div>
+      <div class="stat"><div class="stat-num">&lt;2s</div><div class="stat-lbl" data-i18n="login.stat.analysis">Analysis</div></div>
+      <div class="stat"><div class="stat-num">50K+</div><div class="stat-lbl" data-i18n="login.stat.scans">Scans Done</div></div>
     </div>
   </div>
   <div></div>
@@ -264,9 +263,9 @@
 <div class="right-panel">
   <div class="right-top">
     <div class="lang-switcher light" id="rightLangSwitcher">
-      <button class="lang-btn active" onclick="switchLang('en')">EN</button>
-      <button class="lang-btn" onclick="switchLang('hi')">HI</button>
-      <button class="lang-btn" onclick="switchLang('bn')">BN</button>
+      <button class="lang-btn active" data-lang="en" onclick="switchLang('en')">EN</button>
+      <button class="lang-btn" data-lang="hi" onclick="switchLang('hi')">HI</button>
+      <button class="lang-btn" data-lang="bn" onclick="switchLang('bn')">BN</button>
     </div>
   </div>
 
@@ -275,18 +274,18 @@
       <div class="success-circle">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <div class="success-title"><span>You're</span><br><span>In!</span></div>
-      <p class="success-desc">Welcome back. Redirecting you to your dashboard.</p>
+      <div class="success-title"><span data-i18n="login.success.title1">You're</span><br><span data-i18n="login.success.title2">In!</span></div>
+      <p class="success-desc" data-i18n="login.success.desc">Welcome back. Redirecting you to your dashboard.</p>
       <button class="goto-btn" onclick="window.location.href='/home'">
-        Go to Dashboard
+        <span data-i18n="login.success.btn">Go to Dashboard</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
     </div>
 
     <div id="loginForm">
-      <div class="form-eyebrow"><div class="eyebrow-line"></div><span>Sign In</span></div>
-      <div class="form-title"><span>Hello,</span> <span class="green">Again</span></div>
-      <p class="form-sub">Don't have an account? <a href="/signup">Create one free →</a></p>
+      <div class="form-eyebrow"><div class="eyebrow-line"></div><span data-i18n="login.eyebrow">Sign In</span></div>
+      <div class="form-title"><span data-i18n="login.title1">Hello,</span> <span class="green" data-i18n="login.title2">Again</span></div>
+      <p class="form-sub"><span data-i18n="login.sub">Don't have an account?</span> <a href="/signup" data-i18n="login.sub.link">Create one free →</a></p>
 
       <!-- Trial exhausted banner -->
       <div class="trial-exhausted-banner" id="trialExhaustedBanner">
@@ -308,62 +307,62 @@
         <div class="field-group" id="fg-email" style="margin-bottom:18px">
           <div class="field-label">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Email Address
+            <span data-i18n="login.email.label">Email Address</span>
           </div>
           <div class="input-wrap">
             <span class="i-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
-            <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+            <input type="email" id="emailInput" data-i18n-ph="login.email.placeholder" placeholder="you@example.com" autocomplete="email">
             <span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
           </div>
-          <div class="err-msg" id="emailErr">Please enter a valid email address</div>
+          <div class="err-msg" id="emailErr" data-i18n="login.err.email">Please enter a valid email address</div>
         </div>
 
         <div class="field-group" id="fg-pass" style="margin-bottom:4px">
           <div class="field-label">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Password
+            <span data-i18n="login.pass.label">Password</span>
           </div>
           <div class="input-wrap">
             <span class="i-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-            <input type="password" id="passInput" placeholder="Enter your password" autocomplete="current-password">
+            <input type="password" id="passInput" data-i18n-ph="login.pass.placeholder" placeholder="Enter your password" autocomplete="current-password">
             <button type="button" class="pw-toggle-btn" id="eyeBtn">
               <svg id="eyeSvg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
               </svg>
             </button>
           </div>
-          <a href="#" class="forgot-link">Forgot password?</a>
-          <div class="err-msg" id="passErr">Password must be at least 6 characters</div>
+          <a href="#" class="forgot-link" data-i18n="login.forgot">Forgot password?</a>
+          <div class="err-msg" id="passErr" data-i18n="login.err.pass">Password must be at least 6 characters</div>
         </div>
 
         <div class="remember-row">
           <input type="checkbox" id="rememberMe">
           <label for="rememberMe" class="check-box"></label>
-          <label for="rememberMe" class="remember-label">Remember me for 30 days</label>
+          <label for="rememberMe" class="remember-label" data-i18n="login.remember">Remember me for 30 days</label>
         </div>
 
         <button type="submit" class="signin-btn" id="signInBtn">
           <div class="btn-inner">
             <div class="btn-spinner" id="btnSpinner"></div>
-            <span id="btnText">Sign In →</span>
+            <span id="btnText" data-i18n="login.btn">Sign In →</span>
           </div>
         </button>
       </form>
 
-      <div class="or-divider"><div class="or-line"></div><span class="or-text">or continue with</span><div class="or-line"></div></div>
+      <div class="or-divider"><div class="or-line"></div><span class="or-text" data-i18n="login.or">or continue with</span><div class="or-line"></div></div>
 
       <a href="/auth/google" class="social-btn">
         <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        Continue with Google
+        <span data-i18n="login.google">Continue with Google</span>
       </a>
 
-      <div class="or-divider" style="margin-top:16px"><div class="or-line"></div><span class="or-text">or try for free</span><div class="or-line"></div></div>
+      <div class="or-divider" style="margin-top:16px"><div class="or-line"></div><span class="or-text" data-i18n="login.or.trial">or try for free</span><div class="or-line"></div></div>
 
       <button type="button" class="trial-btn" onclick="openTrial()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        Try Without Account
+        <span data-i18n="login.trial.btn">Try Without Account</span>
       </button>
-      <p class="trial-hint">No sign-up · Just name &amp; phone · 3 free scans</p>
+      <p class="trial-hint" data-i18n="login.trial.hint">No sign-up · Just name &amp; phone · 3 free scans</p>
     </div>
   </div>
 </div>
@@ -397,11 +396,9 @@
   })();
 
   // ── Language switcher ──
+  // FIX: call i18n.applyTranslations (not the non-existent i18n.setLang)
   function switchLang(lang){
-    document.querySelectorAll('.lang-btn').forEach(b=>{
-      b.classList.toggle('active', b.textContent.trim().toUpperCase() === lang.toUpperCase());
-    });
-    if(typeof i18n !== 'undefined' && i18n.setLang) i18n.setLang(lang);
+    if(typeof i18n !== 'undefined') i18n.applyTranslations(lang);
   }
 
   // ── Trial modal ──
@@ -410,7 +407,7 @@
   document.getElementById('trialOverlay').addEventListener('click',function(e){if(e.target===this)closeTrial();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTrial();});
 
-  // ── Trial form submit — NO encodeURIComponent, plain values ──
+  // ── Trial form submit ──
   document.getElementById('trialForm').addEventListener('submit', function(e){
     e.preventDefault();
     const name  = document.getElementById('trialName').value.trim();
@@ -429,9 +426,8 @@
     const txt     = document.getElementById('trialBtnText');
     btn.disabled = true;
     spinner.style.display = 'block';
-    txt.textContent = 'Starting...';
+    txt.textContent = typeof i18n !== 'undefined' ? i18n.t('trial.btn.loading') : 'Starting...';
 
-    // ✅ Plain values — no encodeURIComponent
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '/trial';
@@ -462,15 +458,34 @@
     let ok=true;
     if(!emailRx.test(email)){setField('email',false,true);ok=false;}else setField('email',true,true);
     if(pass.length<6){setField('pass',false,true);ok=false;}else setField('pass',true,true);
-    if(!ok){document.getElementById('errBanner').classList.add('show');document.getElementById('bannerMsg').textContent='Please fix the errors above.';return;}
+    if(!ok){
+      document.getElementById('errBanner').classList.add('show');
+      document.getElementById('bannerMsg').textContent = typeof i18n !== 'undefined' ? i18n.t('login.err.fix') : 'Please fix the errors above.';
+      return;
+    }
     document.getElementById('errBanner').classList.remove('show');
     const btn=document.getElementById('signInBtn'),spinner=document.getElementById('btnSpinner'),txt=document.getElementById('btnText');
-    btn.disabled=true;spinner.style.display='block';txt.textContent='Signing in...';
+    btn.disabled=true;spinner.style.display='block';
+    txt.textContent = typeof i18n !== 'undefined' ? i18n.t('login.btn.loading') : 'Signing in...';
     try{
       const res=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`,redirect:'follow'});
-      if(res.ok&&res.url.includes('/home')){document.getElementById('loginForm').style.display='none';document.getElementById('successScreen').classList.add('show');setTimeout(()=>{window.location.href='/home';},1500);}
-      else{const msg=await res.text();document.getElementById('errBanner').classList.add('show');document.getElementById('bannerMsg').textContent=msg||'Invalid credentials.';btn.disabled=false;spinner.style.display='none';txt.textContent='Sign In →';}
-    }catch(err){document.getElementById('errBanner').classList.add('show');document.getElementById('bannerMsg').textContent='Network error. Please try again.';btn.disabled=false;spinner.style.display='none';txt.textContent='Sign In →';}
+      if(res.ok&&res.url.includes('/home')){
+        document.getElementById('loginForm').style.display='none';
+        document.getElementById('successScreen').classList.add('show');
+        setTimeout(()=>{window.location.href='/home';},1500);
+      } else {
+        const msg=await res.text();
+        document.getElementById('errBanner').classList.add('show');
+        document.getElementById('bannerMsg').textContent=msg||(typeof i18n !== 'undefined' ? i18n.t('login.err.invalid') : 'Invalid credentials.');
+        btn.disabled=false;spinner.style.display='none';
+        txt.textContent = typeof i18n !== 'undefined' ? i18n.t('login.btn') : 'Sign In →';
+      }
+    }catch(err){
+      document.getElementById('errBanner').classList.add('show');
+      document.getElementById('bannerMsg').textContent = typeof i18n !== 'undefined' ? i18n.t('login.err.network') : 'Network error. Please try again.';
+      btn.disabled=false;spinner.style.display='none';
+      txt.textContent = typeof i18n !== 'undefined' ? i18n.t('login.btn') : 'Sign In →';
+    }
   });
 </script>
 </body>
