@@ -530,9 +530,9 @@
     <a href="/home" class="nav-brand" data-i18n="result.brand">PotatoScan</a>
     <div class="nav-right">
       <div class="lang-switcher" id="langSwitcher">
-        <button class="lang-btn active" onclick="switchLang('en', this)">EN</button>
-        <button class="lang-btn" onclick="switchLang('hi', this)">HI</button>
-        <button class="lang-btn" onclick="switchLang('bn', this)">BN</button>
+        <button class="lang-btn active" data-lang="en" onclick="switchLang('en', this)">EN</button>
+        <button class="lang-btn" data-lang="hi" onclick="switchLang('hi', this)">HI</button>
+        <button class="lang-btn" data-lang="bn" onclick="switchLang('bn', this)">BN</button>
       </div>
       <button class="cart-nav-btn" onclick="openCart()">
         Cart <span class="cart-count-badge" id="cartCountBadge">0</span>
@@ -1062,13 +1062,11 @@
     }
 
     // ── Language switcher ─────────────────────────────────────
-    function switchLang(lang, btn) {
-      document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      if (typeof i18n !== 'undefined' && i18n.setLang) {
-        i18n.setLang(lang);
-      }
-    }
+function switchLang(lang, btn) {
+  if (typeof i18n !== 'undefined' && i18n.applyTranslations) {
+    i18n.applyTranslations(lang);  // this also fires the i18n:applied event
+  }
+}
     // Sync active button to whatever lang i18n already has on load
     document.addEventListener('i18n:applied', function(e) {
       var lang = e.detail.lang;
